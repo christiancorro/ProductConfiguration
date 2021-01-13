@@ -1,6 +1,8 @@
 // Scene
 let scene, camera, renderer, controls;
 let bgColor = new THREE.Color(0xFCF1E8);
+let strat;
+let world = new THREE.Group();
 
 // Camera
 let fov = 60,
@@ -12,15 +14,35 @@ let fov = 60,
 const textureLoader = new THREE.TextureLoader();
 const gltfLoader = new THREE.GLTFLoader();
 
-const DEFAULT_CAMERA_POSITION_X = 5,
-    DEFAULT_CAMERA_POSITION_Y = 5,
-    DEFAULT_CAMERA_POSITION_Z = 10;
+gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
+
+    strat = gltf.scene;
+    strat.position.set(0, 0.5, 0);
+    world.add(strat);
+
+    Start();
+    Update();
+
+});
+
+const DEFAULT_CAMERA_POSITION_X = 0,
+    DEFAULT_CAMERA_POSITION_Y = 1,
+    DEFAULT_CAMERA_POSITION_Z = 5;
 
 // -----------------------------------------------
 // START
 // -----------------------------------------------
 
+let clock;
+
+let uniforms = {
+    "time": { value: 1.0 }
+};
+
+
 function Start() {
+
+    clock = new THREE.Clock();
 
     scene = new THREE.Scene();
     scene.fog = new THREE.Fog(bgColor, far / 3, far * 2);
@@ -35,7 +57,7 @@ function Start() {
     document.body.appendChild(renderer.domElement);
 
     camera.position.set(DEFAULT_CAMERA_POSITION_X, DEFAULT_CAMERA_POSITION_Y, DEFAULT_CAMERA_POSITION_Z);
-    camera.lookAt(new THREE.Vector3(0, 0, 0));
+    camera.lookAt(new THREE.Vector3(0, 0.4, 0));
 
     params = {
 
@@ -45,13 +67,35 @@ function Start() {
     let planeGeometry = new THREE.PlaneBufferGeometry(10, 10, 32, 32);
     let wireMaterial = new THREE.MeshBasicMaterial({ color: 0xbababa, wireframe: true });
 
+
     plane = new THREE.Mesh(planeGeometry, wireMaterial);
     plane.position.set(0, -0.1, 0);
     plane.rotation.x = Math.PI / 2;
 
-    world = new THREE.Group();
-    world.add(plane);
+
+    // world.add(plane);
     scene.add(world);
+
+
+    let plastics = scene.getObjectByName("body");
+    let matte = new THREE.MeshBasicMaterial({ color: 0x0000FF });
+
+
+    const material = new THREE.ShaderMaterial({
+
+        uniforms: uniforms,
+        vertexShader: document.getElementById('vertexShader').textContent,
+        fragmentShader: document.getElementById('fragmentShader').textContent
+
+    });
+
+
+    plastics.material = material;
+    for (let i = 0; i < plastics.children.length; i++) {
+        let c = plastics.children[i];
+
+        c.material = material;
+    }
 
     // Lights
     addLight(0.3, -50, 100, 10);
@@ -75,7 +119,10 @@ function Start() {
 
     // Controls
     controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.maxPolarAngle = Math.PI / 2;
+
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.2;
+    // controls.maxPolarAngle = Math.PI / 2;
     // controls.minPolarAngle = Math.PI * 0.05;
     controls.enableKeys = false;
     controls.enableDamping = true;
@@ -151,6 +198,11 @@ function Update() {
     //     zoomIn = false;
     // }
 
+    const delta = clock.getDelta();
+
+    uniforms["time"].value += delta * 5;
+    uniforms["time"].value = clock.elapsedTime;
+
 
     requestAnimationFrame(Update);
     controls.update();
@@ -172,18 +224,9 @@ function random(min, max) {
 }
 
 window.addEventListener('resize', onWindowResize, false);
+
 function onWindowResize() {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    // update the camera
-    aspectRatio = window.innerWidth / window.innerHeight;
-    camera.left = (-aspectRatio * viewSize) / 2;
-    camera.right = (aspectRatio * viewSize) / 2;
-    camera.top = viewSize / 2 + cameraOffsetY;
-    camera.bottom = -viewSize / 2 + cameraOffsetY;
+    camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 }
-
-
-
-Start();
-Update();

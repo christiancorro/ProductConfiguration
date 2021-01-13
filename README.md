@@ -35,7 +35,7 @@ ProductConfiguration
 
 
 ## Crediti
-* Modelli 3D scaricati dalla piattaforma di Google [Poly](https://poly.google.com/) con licenza CC-BY.
-    * [Modello albero](https://poly.google.com/view/fCT73jIf5jN)
+* Modelli 3D scaricati con licenza CC-BY-NC.
+    * [Modello Stratocaster](https://evermotion.org/downloads/show/322/fender-stratocaster-3d-model#x)
     * [Modello uccello](https://poly.google.com/view/cTSOEPvVovs)
 * Texture scaricate da [freestocktextures.com](https://freestocktextures.com/)
