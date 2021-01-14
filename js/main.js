@@ -17,7 +17,8 @@ const gltfLoader = new THREE.GLTFLoader();
 gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
 
     strat = gltf.scene;
-    strat.position.set(0, 0.5, 0);
+    strat.rotation.y = Math.PI / 10;
+    strat.position.set(0, 0, 0);
     world.add(strat);
 
     Start();
@@ -26,8 +27,8 @@ gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
 });
 
 const DEFAULT_CAMERA_POSITION_X = 0,
-    DEFAULT_CAMERA_POSITION_Y = 1,
-    DEFAULT_CAMERA_POSITION_Z = 5;
+    DEFAULT_CAMERA_POSITION_Y = 0.3,
+    DEFAULT_CAMERA_POSITION_Z = 4;
 
 // -----------------------------------------------
 // START
@@ -39,8 +40,11 @@ let uniforms = {
     "time": { value: 1.0 }
 };
 
+let materials;
 
 function Start() {
+
+    // createGUI();
 
     clock = new THREE.Clock();
 
@@ -80,6 +84,9 @@ function Start() {
     let plastics = scene.getObjectByName("body");
     let matte = new THREE.MeshBasicMaterial({ color: 0x0000FF });
 
+    materials = {
+        "gruppo1": [matte, wireMaterial]
+    }
 
     const material = new THREE.ShaderMaterial({
 
@@ -172,6 +179,12 @@ function addLight(intensity, ...pos) {
     scene.add(light);
 }
 
+function setMaterial(mesh, material) {
+    mesh.material = material;
+    for (let i = 0; i < mesh.children.length; i++) {
+        mesh.children[i].material = material;
+    }
+}
 
 //Set position increments
 let dx = 0.1;
