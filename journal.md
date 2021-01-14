@@ -18,4 +18,5 @@ Mi piace.
 \
 \
 **Interfaccia**
+\
 <img src="images/journal/fender_configurator.png" alt="Sketch delle parti modificabili" width="800">
