@@ -1,6 +1,7 @@
 // Scene
 let scene, camera, renderer, controls;
-let bgColor = new THREE.Color(0xFCF1E8);
+let canvas = document.querySelector("#canvas");
+let bgColor = new THREE.Color(0xF9F9F9);
 let strat;
 let world = new THREE.Group();
 
@@ -18,7 +19,8 @@ gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
 
     strat = gltf.scene;
     strat.rotation.y = Math.PI / 10;
-    strat.position.set(0, 0, 0);
+    strat.rotation.z = -Math.PI / 2;
+    strat.position.set(0.2, 0, 0);
     world.add(strat);
 
     Start();
@@ -27,7 +29,7 @@ gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
 });
 
 const DEFAULT_CAMERA_POSITION_X = 0,
-    DEFAULT_CAMERA_POSITION_Y = 0.3,
+    DEFAULT_CAMERA_POSITION_Y = 0,
     DEFAULT_CAMERA_POSITION_Z = 4;
 
 // -----------------------------------------------
@@ -54,11 +56,11 @@ function Start() {
     camera = new THREE.PerspectiveCamera(fov, aspectRatio, near, far);
 
     // Renderer
-    renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+    // renderer.setSize(canvas.width, canvas.height);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setClearColor(bgColor);
-    document.body.appendChild(renderer.domElement);
+    // document.body.appendChild(renderer.domElement);
 
     camera.position.set(DEFAULT_CAMERA_POSITION_X, DEFAULT_CAMERA_POSITION_Y, DEFAULT_CAMERA_POSITION_Z);
     camera.lookAt(new THREE.Vector3(0, 0.4, 0));
@@ -115,8 +117,7 @@ function Start() {
 
     // Stats
     stats = new Stats();
-    stats.domElement.style.position = 'absolute';
-    stats.domElement.style.top = '0px';
+    stats.domElement.classList.add("stats");
     document.body.appendChild(stats.domElement);
 
     // Axes
@@ -125,15 +126,16 @@ function Start() {
 
 
     // Controls
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
-
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.2;
-    // controls.maxPolarAngle = Math.PI / 2;
-    // controls.minPolarAngle = Math.PI * 0.05;
-    controls.enableKeys = false;
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.1;
+    controls = new THREE.TrackballControls(camera, renderer.domElement);
+    // controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.rotateSpeed = 3;
+    // controls.enableDamping = true;
+    // controls.dampingFactor = 0.2;
+    // // controls.maxPolarAngle = Math.PI / 2;
+    // // controls.minPolarAngle = Math.PI * 0.05;
+    // controls.enableKeys = false;
+    // controls.enableDamping = true;
+    // controls.dampingFactor = 0.1;
 
     // Now, please, go
 }
@@ -186,6 +188,18 @@ function setMaterial(mesh, material) {
     }
 }
 
+function resizeRendererToDisplaySize(renderer) {
+    const canvas = renderer.domElement;
+    const pixelRatio = window.devicePixelRatio;
+    const width = canvas.clientWidth * pixelRatio | 0;
+    const height = canvas.clientHeight * pixelRatio | 0;
+    const needResize = canvas.width !== width || canvas.height !== height;
+    if (needResize) {
+        renderer.setSize(width, height, false);
+    }
+    return needResize;
+}
+
 //Set position increments
 let dx = 0.1;
 let dy = 0.01;
@@ -195,6 +209,12 @@ let zoomIn = true;
 let zoomInTarget = 10;
 
 function Update() {
+
+    if (resizeRendererToDisplaySize(renderer)) {
+        const canvas = renderer.domElement;
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+    }
 
     // Initial camera animation
     camera.updateProjectionMatrix();
@@ -234,12 +254,4 @@ function Render() {
 
 function random(min, max) {
     return Math.random() * (max - min) + min;
-}
-
-window.addEventListener('resize', onWindowResize, false);
-
-function onWindowResize() {
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
 }
