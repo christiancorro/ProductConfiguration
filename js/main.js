@@ -17,9 +17,9 @@ const gltfLoader = new THREE.GLTFLoader();
 
 gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
 
-    strat = gltf.scene;
-    strat.rotation.y = Math.PI / 10;
-    strat.rotation.z = -Math.PI / 2;
+    strat = gltf.scene.children[0];
+    strat.rotation.y = -Math.PI / 10;
+    strat.rotation.z = -Math.PI / 16;
     strat.position.set(0.2, 0, 0);
     world.add(strat);
 
@@ -30,7 +30,7 @@ gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
 
 const DEFAULT_CAMERA_POSITION_X = 0,
     DEFAULT_CAMERA_POSITION_Y = 0,
-    DEFAULT_CAMERA_POSITION_Z = 4;
+    DEFAULT_CAMERA_POSITION_Z = 4.5;
 
 // -----------------------------------------------
 // START
@@ -46,7 +46,7 @@ let materials;
 
 function Start() {
 
-    // createGUI();
+    createGUI();
 
     clock = new THREE.Clock();
 
@@ -83,7 +83,7 @@ function Start() {
     scene.add(world);
 
 
-    let plastics = scene.getObjectByName("body");
+
     let matte = new THREE.MeshBasicMaterial({ color: 0x0000FF });
 
     materials = {
@@ -99,13 +99,14 @@ function Start() {
     });
 
 
-    plastics.material = material;
-    for (let i = 0; i < plastics.children.length; i++) {
-        let c = plastics.children[i];
+    // for (let i = 0; i < plastics.children.length; i++) {
+    //     let c = plastics.children[i];
 
-        c.material = material;
-    }
+    //     c.material = material;
+    // }
 
+    let body = getGroup("root");
+    setMaterial(body, material);
     // Lights
     addLight(0.3, -50, 100, 10);
     addLight(0.2, 0, 1, 2);
@@ -210,6 +211,7 @@ let zoomInTarget = 10;
 
 function Update() {
 
+    // strat.rotation.y -= 0.005;
     if (resizeRendererToDisplaySize(renderer)) {
         const canvas = renderer.domElement;
         camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -254,4 +256,29 @@ function Render() {
 
 function random(min, max) {
     return Math.random() * (max - min) + min;
+}
+
+function applyRecursive(group, func) {
+    group.children.forEach((child) => {
+        if (child) {
+            applyRecursive(child, func);
+            func(child);
+        }
+    });
+}
+
+function setMaterial(group, material) {
+    applyRecursive(group, (child) => { child.material = material });
+}
+
+function getGroup(name) {
+    return scene.getObjectByName(name);
+}
+
+function createGUI() {
+    let sidebar = $('#sidebar ul');
+    for (let i = 0; i < strat.children.length; i++) {
+        let c = strat.children[i];
+        sidebar.append('<li id="' + c.name + '">' + c.name + '</li>')
+    }
 }

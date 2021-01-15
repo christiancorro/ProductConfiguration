@@ -26,7 +26,8 @@ body {
 }
 
 .title {
-    margin: 20px;
+    margin: 10px;
+    margin-left: 20px;
     font-weight: 800;
     font-size: 3.2em;
     position: absolute;
@@ -42,7 +43,8 @@ body {
     height: 100%;
     display: block;
     position: absolute;
-    margin-left: -15%;
+    /* metà di 40% */
+    margin-left: -20%;
     transition: all .4s ease;
 }
 
