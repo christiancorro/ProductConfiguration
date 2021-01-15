@@ -43,8 +43,8 @@ body {
     height: 100%;
     display: block;
     position: absolute;
-    /* metà di 40% */
-    margin-left: -20%;
+    /* metà di 30% */
+    margin-left: -15%;
     transition: all .4s ease;
 }
 

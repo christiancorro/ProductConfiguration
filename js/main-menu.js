@@ -1,6 +1,7 @@
 $('document').ready(function () {
     var menu = $('#menu_container'),
-        sidebar = $('#sidebar_container'),
+        sidebar_container = $('#sidebar_container'),
+        sidebar = $('#sidebar'),
         canvas = $('.canvas-container'),
         open = true,
         mobile = false,
@@ -35,6 +36,7 @@ $('document').ready(function () {
     function interact() {
         menu.toggleClass('active');
         sidebar.toggleClass('open');
+        sidebar_container.toggleClass('open');
         canvas.toggleClass('open');
         $('#menu_container').removeClass("hidden");
         open = !open;

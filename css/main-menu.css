@@ -124,7 +124,7 @@
     display: inline-block;
     box-sizing: border-box;
     position: relative;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.05em;
     color: #141414d0;
     height: 100%;
     left: 0px;
@@ -137,12 +137,21 @@
     -webkit-transition: left .4s ease;
     transition: left .4s ease;
     text-shadow: 0px 0px 1px rgba(255, 255, 255, 0.59);
+    -webkit-user-select: none;
+    /* Safari */
+    -moz-user-select: none;
+    /* Firefox */
+    -ms-user-select: none;
+    /* IE10+/Edge */
+    user-select: none;
+    /* Standard */
 }
 
 #main_menu_alert span {
     display: block;
     margin: 10px;
     margin-left: 15px;
+    text-align: right;
 }
 
 /* Chrome, Safari, Opera */
