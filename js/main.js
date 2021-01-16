@@ -8,7 +8,7 @@ let world = new THREE.Group();
 // Camera
 let fov = 60,
     aspectRatio = window.innerWidth / window.innerHeight,
-    near = 0.1,
+    near = 0.01,
     far = 500;
 
 // Loaders
@@ -129,7 +129,7 @@ function Start() {
     // Controls
     controls = new THREE.TrackballControls(camera, renderer.domElement);
     // controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.rotateSpeed = 3;
+    controls.rotateSpeed = 4;
     // controls.enableDamping = true;
     // controls.dampingFactor = 0.2;
     // // controls.maxPolarAngle = Math.PI / 2;
@@ -279,6 +279,13 @@ function createGUI() {
     let sidebar = $('#sidebar ul');
     for (let i = 0; i < strat.children.length; i++) {
         let c = strat.children[i];
-        sidebar.append('<li id="' + c.name + '">' + c.name + '</li>')
+        let element = '<li class="group">'
+            + '<div class="group-button">'
+            + '<span class="group-label">' + c.name + '</span> <span class="group-set-material-label">Rosso</span>'
+            + '</div>'
+            + '<div class="material-panel">'
+            + '</div>'
+            + '</li>';
+        sidebar.append(element);
     }
 }

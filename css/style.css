@@ -3,6 +3,11 @@
     src: url(../fonts/FuturaPTHeavy.otf);
 }
 
+@font-face {
+    font-family: FuturaPT-Book;
+    src: url(../fonts/FuturaPTBook.otf);
+}
+
 *, :after, :before {
     box-sizing: border-box;
 }

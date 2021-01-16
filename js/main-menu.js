@@ -20,6 +20,7 @@ $('document').ready(function () {
     $('#home-container ul li').on('dragstart', function (event) {
         event.preventDefault();
     });
+
     $("#home-container ul li").each(function (i) {
         $(this).click(function (e) {
             if (e.which === 1) {
