@@ -27,13 +27,19 @@ function igniteGUI(params) {
     });
 
     material.mousedown(function (e) {
-        let parent = $(this).parent();
-        parent.children().each(function (e) {
+        let material_panel = $(this).parent();
+        let group = material_panel.parent();
+        let group_name = group.find(".group-label").text();
+        let material_name = $(this).find(".material-label").text();
+
+        material_panel.children().each(function (e) {
             $(this).removeClass("set");
         });
         e.stopPropagation();
         e.stopImmediatePropagation();
         $(this).toggleClass("set");
+        console.log("setMaterial: \nGroup: " + group_name + "\nMaterial: " + material_name);
+        setMaterial(getGroup(group_name), getMaterialbyName(material_name));
     });
 
 

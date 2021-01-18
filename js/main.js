@@ -43,6 +43,9 @@ let uniforms = {
 };
 
 
+let mats = [];
+
+
 function Start() {
 
     clock = new THREE.Clock();
@@ -90,7 +93,6 @@ function Start() {
     let plastic_black = new THREE.MeshBasicMaterial({ color: 0x000000 });
     plastic_black.name = "Black plastic";
 
-
     let material = new THREE.ShaderMaterial({
 
         uniforms: uniforms,
@@ -102,6 +104,12 @@ function Start() {
     material.name = "Psychedelic";
 
 
+    mats.push(plastic_red);
+    mats.push(plastic_white);
+    mats.push(plastic_black);
+    mats.push(wireMaterial);
+    mats.push(material);
+
 
     materials = {
         "body": {
@@ -110,7 +118,7 @@ function Start() {
         },
         "pickguard": {
             "defaultMaterial": plastic_white,
-            "availableMaterials": [plastic_red, plastic_black, wireMaterial, plastic_white]
+            "availableMaterials": [material, plastic_red, plastic_black, wireMaterial, plastic_white]
         },
         "frets": {
             "defaultMaterial": plastic_black,
@@ -241,12 +249,12 @@ function addLight(intensity, ...pos) {
     scene.add(light);
 }
 
-function setMaterial(mesh, material) {
-    mesh.material = material;
-    for (let i = 0; i < mesh.children.length; i++) {
-        mesh.children[i].material = material;
-    }
-}
+// function setMaterial(mesh, material) {
+//     mesh.material = material;
+//     for (let i = 0; i < mesh.children.length; i++) {
+//         mesh.children[i].material = material;
+//     }
+// }
 
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -338,6 +346,10 @@ function setMaterials() {
 function setMaterial(group, material) {
     group.material = material;
     applyRecursive(group, (child) => { child.material = material });
+}
+
+function getMaterialbyName(name) { // TODO: DA SISTEMARE!
+    return mats.find(obj => obj.name === name);
 }
 
 function getGroup(name) {
