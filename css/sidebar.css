@@ -5,6 +5,7 @@
     display: block;
     position: absolute;
     width: 30%;
+    min-width: 290px;
     height: 100%;
     margin-right: -30%;
     right: 0;
@@ -22,6 +23,8 @@
     padding-top: 90px;
     width: 100%;
     height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
     display: block;
     -webkit-user-select: none;
     /* Safari */
@@ -75,7 +78,7 @@
     height: 50px;
     /* transition: all .3s ease; */
     /* cursor: pointer; */
-    /* box-shadow: 1px 1px 2px rgba(163, 163, 163, 0.12); */
+    box-shadow: 1px 1px 2px rgba(163, 163, 163, 0.12);
     /* transition-delay: .05s; */
     overflow: hidden;
     -webkit-transition: all .5s ease;
@@ -184,7 +187,7 @@
 }
 
 #sidebar .group-label {
-    display: inline;
+    display: inline-block;
     position: relative;
 }
 
@@ -194,7 +197,7 @@
     /* z-index: -1; */
     left: 0;
     width: 0;
-    bottom: -5px;
+    bottom: 10px;
     background: #000;
     height: 2px;
     transition: width 0.2s ease-out;
@@ -215,18 +218,25 @@
     font-family: FuturaPT-Book, sans-serif;
     text-transform: capitalize;
     color: #666666;
-    left: 60%;
-    position: absolute;
+    font-size: 0.9em;
+    /* margin-left: 200px; */
+    float: right;
+    text-align: right;
 }
 
 #sidebar .group-set-material-label::after {
     content: "→";
-    margin-left: 30px;
+    display: inline-block;
+    /* position: absolute; */
+    margin-left: 20px;
+    margin-right: 20px;
+    /* margin-left: 30px; */
     transition: all .3s ease;
 }
 
 #sidebar .group.open .group-set-material-label::after {
-    transform: rotate3d(0, 0, 10);
+    /* transform-origin: left; */
+    transform: translate(0%, 0%) rotateZ(90deg);
 }
 
 #sidebar .material-panel {
@@ -244,25 +254,67 @@
     background-color: #fff;
     display: inline-block;
     cursor: pointer;
-    width: 80px;
-    height: 80px;
+    width: 90px;
+    height: 90px;
     padding: 5px;
     margin: 5px;
-    margin-right: 15px;
+    margin-right: 10px;
     margin-top: 15px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0);
     transition: all .5s ease-in-out;
 }
 
-#sidebar .material-panel .material:hover {}
+.material-label::after {
+    content: "";
+    position: relative;
+    display: block;
+    /* z-index: -1; */
+    left: 0;
+    width: 0;
+    bottom: -8px;
+    /* margin-top: 10px; */
+    /* top: ; */
+    background: #000;
+    height: 2px;
+    transition: width 0.2s ease-out;
+}
+
+.material:hover .material-label::after {
+    /* left: 0; */
+    right: auto;
+    width: 50%;
+}
+
+.material.set .material-label::after {
+    right: auto;
+    width: 100%;
+}
+
+#sidebar .material-panel .material.set .material-label {
+    color: black;
+}
+
+#sidebar .material-panel .material.set .material-preview img {
+    filter: grayscale(0);
+}
 
 #sidebar .material-panel .material .material-preview img {
     border-radius: 100%;
     width: 40px;
     height: 40px;
     display: block;
-    background-color: red;
     margin: 0 auto;
+    box-shadow: 0 0 3px rgb(110, 110, 110);
+    filter: grayscale(80%);
+    transition: filter .3s ease-in-out;
+}
+
+#sidebar .material-panel .material:hover img {
+    filter: grayscale(0);
+}
+
+#sidebar .material-panel .material:hover .material-label {
+    color: black;
 }
 
 #sidebar .material-panel .material .material-label {
@@ -270,10 +322,36 @@
     font-size: 0.8em;
     text-align: center;
     display: block;
-    padding-top: 4px;
+    padding-top: 8px;
     margin: 0 auto;
     font-weight: 100;
     font-family: FuturaPT-Book, sans-serif;
     letter-spacing: 0.05em;
     text-transform: capitalize;
+    color: #666666;
+    transition: all .3s ease-in-out;
+}
+
+.collapse span {
+    font-family: FuturaPT-Book, sans-serif;
+    text-transform: lowercase;
+    font-style: italic;
+    font-size: 0.8em;
+    color: #888888;
+    display: block;
+    margin-left: 20px;
+    margin-bottom: 15px;
+    margin-top: -20px;
+    cursor: pointer;
+    width: 60px;
+    transition: color .3s ease-in-out;
+}
+
+.collapse span:hover {
+    color: #000;
+}
+
+.collapse span:active {
+    /* text-decoration: underline; */
+    font-weight: 600;
 }

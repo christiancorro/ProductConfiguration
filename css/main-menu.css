@@ -120,7 +120,7 @@
 
 #main_menu_alert {
     margin: 0 !important;
-    font-family: 'FuturaPT-Heavy', sans-serif;
+    font-family: 'FuturaPT-Book', sans-serif;
     display: inline-block;
     box-sizing: border-box;
     position: relative;
@@ -131,6 +131,7 @@
     width: 115px;
     overflow: hidden;
     font-size: 26px;
+    font-weight: 600;
     /* padding-right: 2px; */
     line-height: 32px;
     background: rgba(255, 255, 255, 0.3);

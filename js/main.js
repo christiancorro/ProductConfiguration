@@ -2,7 +2,7 @@
 let scene, camera, renderer, controls;
 let canvas = document.querySelector("#canvas");
 let bgColor = new THREE.Color(0xF9F9F9);
-let strat;
+let strat, materials;
 let world = new THREE.Group();
 
 // Camera
@@ -42,11 +42,8 @@ let uniforms = {
     "time": { value: 1.0 }
 };
 
-let materials;
 
 function Start() {
-
-    createGUI();
 
     clock = new THREE.Clock();
 
@@ -72,7 +69,7 @@ function Start() {
 
     let planeGeometry = new THREE.PlaneBufferGeometry(10, 10, 32, 32);
     let wireMaterial = new THREE.MeshBasicMaterial({ color: 0xbababa, wireframe: true });
-
+    wireMaterial.name = "Wired"
 
     plane = new THREE.Mesh(planeGeometry, wireMaterial);
     plane.position.set(0, -0.1, 0);
@@ -84,19 +81,74 @@ function Start() {
 
 
 
-    let matte = new THREE.MeshBasicMaterial({ color: 0x0000FF });
+    let plastic_red = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
+    plastic_red.name = "Red plastic";
 
-    materials = {
-        "gruppo1": [matte, wireMaterial]
-    }
+    let plastic_white = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+    plastic_white.name = "White plastic";
 
-    const material = new THREE.ShaderMaterial({
+    let plastic_black = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    plastic_black.name = "Black plastic";
+
+
+    let material = new THREE.ShaderMaterial({
 
         uniforms: uniforms,
         vertexShader: document.getElementById('vertexShader').textContent,
         fragmentShader: document.getElementById('fragmentShader').textContent
 
     });
+
+    material.name = "Psychedelic";
+
+
+
+    materials = {
+        "body": {
+            "defaultMaterial": material,
+            "availableMaterials": [material, plastic_red, plastic_white, plastic_black]
+        },
+        "pickguard": {
+            "defaultMaterial": plastic_white,
+            "availableMaterials": [plastic_red, plastic_black, wireMaterial, plastic_white]
+        },
+        "frets": {
+            "defaultMaterial": plastic_black,
+            "availableMaterials": [plastic_red, plastic_white, plastic_black, material]
+        },
+        "fret-markers": {
+            "defaultMaterial": plastic_white,
+            "availableMaterials": [plastic_red, plastic_white, wireMaterial]
+        },
+        "metals": {
+            "defaultMaterial": material,
+            "availableMaterials": [plastic_red, wireMaterial, material]
+        },
+        "head": {
+            "defaultMaterial": material,
+            "availableMaterials": [material, plastic_red, wireMaterial]
+        },
+        "logo": {
+            "defaultMaterial": plastic_black,
+            "availableMaterials": [plastic_white, plastic_red, plastic_black, wireMaterial]
+        },
+        "neck": {
+            "defaultMaterial": material,
+            "availableMaterials": [material, plastic_red, wireMaterial]
+        },
+        "knobs-text": {
+            "defaultMaterial": plastic_white,
+            "availableMaterials": [material, plastic_red, wireMaterial, plastic_white]
+        },
+        "plastics": {
+            "defaultMaterial": material,
+            "availableMaterials": [material, plastic_red, wireMaterial]
+        },
+        "strings": {
+            "defaultMaterial": plastic_white,
+            "availableMaterials": [material, plastic_white, plastic_red, wireMaterial]
+        }
+    }
 
 
     // for (let i = 0; i < plastics.children.length; i++) {
@@ -107,6 +159,13 @@ function Start() {
 
     let body = getGroup("root");
     setMaterial(body, material);
+    setMaterial(getGroup("pickguard"), new THREE.LineDashedMaterial({ color: 0xFFF1F1 }));
+
+
+    setMaterials();
+    createGUI();
+
+
     // Lights
     addLight(0.3, -50, 100, 10);
     addLight(0.2, 0, 1, 2);
@@ -267,7 +326,17 @@ function applyRecursive(group, func) {
     });
 }
 
+function setMaterials() {
+    for (let i = 0; i < strat.children.length; i++) {
+        let c = strat.children[i];
+        console.log(c.name);
+        console.log(materials[c.name].defaultMaterial.name);
+        setMaterial(c, materials[c.name].defaultMaterial);
+    }
+}
+
 function setMaterial(group, material) {
+    group.material = material;
     applyRecursive(group, (child) => { child.material = material });
 }
 
@@ -279,13 +348,23 @@ function createGUI() {
     let sidebar = $('#sidebar ul');
     for (let i = 0; i < strat.children.length; i++) {
         let c = strat.children[i];
-        let element = '<li class="group">'
+        let HTMLGroup = '<li class="group">'
             + '<div class="group-button">'
-            + '<span class="group-label">' + c.name + '</span> <span class="group-set-material-label">Rosso</span>'
+            + '<span class="group-label">' + c.name + '</span> <span class="group-set-material-label">' + c.material.name + '</span>'
             + '</div>'
-            + '<div class="material-panel">'
-            + '</div>'
+            + '<div class="material-panel">';
+        for (let j = 0; j < materials[c.name].availableMaterials.length; j++) {
+            let m = materials[c.name].availableMaterials[j];
+            HTMLGroup += '<div class="material ' + ((c.material.name === m.name) ? "set" : "") + '">'
+                + '<div class="material-preview"><img src="images/material-previews/' + m.name + '.png" alt = "' + m.name + '" >'
+                + '</div>'
+                + ' <span class="material-label">' + m.name + '</span>'
+                + '</div>';
+        }
+
+        HTMLGroup += '</div>'
             + '</li>';
-        sidebar.append(element);
+        sidebar.append(HTMLGroup);
+        igniteGUI();
     }
 }

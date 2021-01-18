@@ -1,4 +1,4 @@
-<html>
+<html lang="en">
 
 <head>
     <title>Dreamcaster</title>
@@ -14,7 +14,6 @@
     <script type='text/javascript' src="js/libs/GLTFExporter.js"></script>
     <script type='text/javascript' src="js/libs/GLTFLoader.js"></script>
     <script type='text/javascript' src="js/libs/jquery-1.12.2.min.js"></script>
-    <script type='text/javascript' src="js/main-menu.js"></script>
 </head>
 
 <body>
@@ -66,7 +65,7 @@
     </script>
 
     <!--start MENU-->
-    <div id="menu_container" class="unselectable active">
+    <div id="menu_container" class="unselectable">
         <div id="main_menu">
             <span></span>
             <span></span>
@@ -85,66 +84,18 @@
             <canvas id="canvas"></canvas>
         </div>
 
-        <div id="sidebar_container" class="open">
-            <nav id="sidebar" class="open">
+        <div id="sidebar_container">
+            <nav id="sidebar">
+                <div class=" collapse"><span>Collapse all</span>
+                </div>
                 <ul>
-                    <li class="group">
-                        <div class="group-button">
-                            <span class="group-label">Group</span> <span class="group-set-material-label">Rosso</span>
-                        </div>
-                        <div class="material-panel">
-                            <div class="material">
-                                <div class="material-preview"><img src="images/material-previews/Rosso.png" alt="Rosso">
-                                </div>
-                                <span class="material-label">Rosso</span>
-                            </div>
-                            <div class="material">
-                                <div class="material-preview"></div>
-                                <span class="material-label">diamante</span>
-                            </div>
-                            <div class="material">
-                                <div class="material-preview"></div>
-                                <span class="material-label">psichedelico</span>
-                            </div>
-                            <div class="material">
-                                <div class="material-preview"></div>
-                                <span class="material-label">diamante</span>
-                            </div>
-                            <div class="material">
-                                <div class="material-preview"></div>
-                                <span class="material-label">diamante</span>
-                            </div>
-                            <div class="material">
-                                <div class="material-preview"></div>
-                                <span class="material-label">diamante</span>
-                            </div>
-                            <div class="material">
-                                <div class="material-preview"></div>
-                                <span class="material-label">nero</span>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="group">
-                        <div class="group-button">
-                            <span class="group-label">Group 2</span>
-                        </div>
-                        <div class="material-panel">
-                            <div>
-                                <div class="material">
-                                    <div class="material-preview"></div>
-                                    <span class="material-label">rosso</span>
-                                </div>
-                                <div class="material"></div>
-                                <div class="material"></div>
-                            </div>
-                        </div>
-                    </li>
                 </ul>
             </nav>
         </div>
 
 
     </div>
+    <script type='text/javascript' src="js/main-menu.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
     <script type="text/javascript" src="js/sidebar.js"></script>
 </body>

@@ -12,6 +12,18 @@
     box-sizing: border-box;
 }
 
+*::-webkit-scrollbar {
+    width: 5px;
+}
+
+*::-webkit-scrollbar-track {
+    background: #ddd;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: #666;
+}
+
 body {
     font-family: FuturaPT-Heavy;
     background-color: #F9F9F9;
@@ -49,12 +61,12 @@ body {
     display: block;
     position: absolute;
     /* metà di 30% */
-    margin-left: -15%;
+    margin-left: 0%;
     transition: all .4s ease;
 }
 
 .canvas-container.open {
-    margin-left: 0;
+    margin-left: -15%;
 }
 
 #canvas {
