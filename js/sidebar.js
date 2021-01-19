@@ -2,7 +2,7 @@ function igniteGUI() {
 
     let groups = $('#sidebar li.group');
     let group_button = $('.group-button');
-    let animateTime = 200; //ms
+    let animateTime = 10; //ms
     let material = $('.material');
     let collapse = $('.collapse');
 
