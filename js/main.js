@@ -18,9 +18,9 @@ const gltfLoader = new THREE.GLTFLoader();
 gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
 
     strat = gltf.scene.children[0];
-    strat.rotation.y = -Math.PI / 10;
-    strat.rotation.z = -Math.PI / 16;
-    strat.position.set(0.2, 0, 0);
+    // strat.rotation.y = -Math.PI / 10;
+    strat.rotation.z = -Math.PI / 2;
+    strat.position.set(0, 0, 0);
     world.add(strat);
 
     Start();
@@ -30,7 +30,7 @@ gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
 
 const DEFAULT_CAMERA_POSITION_X = 0,
     DEFAULT_CAMERA_POSITION_Y = 0,
-    DEFAULT_CAMERA_POSITION_Z = 4.2;
+    DEFAULT_CAMERA_POSITION_Z = 3;
 
 // -----------------------------------------------
 // START

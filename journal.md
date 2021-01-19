@@ -17,6 +17,11 @@ Mi piace.
 <img src="images/journal/organizzazione_modello.png" alt="Sketch delle parti modificabili" width="800">
 \
 \
-**Interfaccia**
+**Interfaccia ispirazione**
 \
 <img src="images/journal/fender_configurator.png" alt="Sketch delle parti modificabili" width="800">
+
+\
+**Progetto interfaccia**
+\
+<img src="images/journal/schizzo_gui.png" alt="Sketch delle parti modificabili">

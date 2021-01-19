@@ -33,7 +33,7 @@ function igniteGUI() {
         e.stopImmediatePropagation();
         $(this).toggleClass("set");
         console.log("setMaterial: \nGroup: " + group_name + "\nMaterial: " + material_name);
-        setMaterial(getGroup(group_name), getMaterialbyName(material_name));
+        setMaterial(getGroup(group_name), getMaterialByName(material_name));
         set_material_label.text(material_name);
     });
 
