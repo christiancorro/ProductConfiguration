@@ -25,3 +25,6 @@ Mi piace.
 **Progetto interfaccia**
 \
 <img src="images/journal/schizzo_gui.png" alt="Sketch delle parti modificabili">
+
+<img src="images/journal/skybox.png" alt="Sketch delle parti modificabili">
+Trasformazione in cube map con : https://jaxry.github.io/panorama-to-cubemap/

@@ -15,11 +15,13 @@ let fov = 60,
 const textureLoader = new THREE.TextureLoader();
 const gltfLoader = new THREE.GLTFLoader();
 
+let cubeMap = loadCubeMap("skybox");
+
 gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
 
     strat = gltf.scene.children[0];
-    // strat.rotation.y = -Math.PI / 10;
-    strat.rotation.z = -Math.PI / 2;
+    // strat.rotation.y = -Math.PI / 12;    
+    strat.rotation.z = -Math.PI / 6;
     strat.position.set(0, 0, 0);
     world.add(strat);
 
@@ -30,7 +32,7 @@ gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
 
 const DEFAULT_CAMERA_POSITION_X = 0,
     DEFAULT_CAMERA_POSITION_Y = 0,
-    DEFAULT_CAMERA_POSITION_Z = 3;
+    DEFAULT_CAMERA_POSITION_Z = 4;
 
 // -----------------------------------------------
 // START
@@ -81,6 +83,7 @@ function Start() {
 
     // world.add(plane);
     scene.add(world);
+    scene.background = cubeMap;
 
 
 
@@ -114,7 +117,7 @@ function Start() {
     materials = {
         "body": {
             "defaultMaterial": material,
-            "availableMaterials": [material, plastic_red, plastic_white, plastic_black]
+            "availableMaterials": [material, plastic_red, plastic_white, plastic_black, wireMaterial]
         },
         "pickguard": {
             "defaultMaterial": plastic_white,
@@ -122,7 +125,7 @@ function Start() {
         },
         "frets": {
             "defaultMaterial": plastic_black,
-            "availableMaterials": [plastic_red, plastic_white, plastic_black, material]
+            "availableMaterials": [plastic_red, plastic_white, plastic_black, material, wireMaterial]
         },
         "fret-markers": {
             "defaultMaterial": plastic_white,
@@ -194,16 +197,17 @@ function Start() {
 
 
     // Controls
-    controls = new THREE.TrackballControls(camera, renderer.domElement);
-    // controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.rotateSpeed = 4;
-    // controls.enableDamping = true;
-    // controls.dampingFactor = 0.2;
-    // // controls.maxPolarAngle = Math.PI / 2;
-    // // controls.minPolarAngle = Math.PI * 0.05;
-    // controls.enableKeys = false;
-    // controls.enableDamping = true;
-    // controls.dampingFactor = 0.1;
+    // controls = new THREE.TrackballControls(camera, renderer.domElement);
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    // controls.rotateSpeed = 4;
+    controls.minDistance = 0.1;
+    controls.maxDistance = 5;
+    controls.enableDamping = true;
+    controls.enablePan = false;
+    controls.dampingFactor = 0.2;
+    // controls.maxPolarAngle = Math.PI / 2;
+    // controls.minPolarAngle = Math.PI * 0.05;
+    controls.enableKeys = true;
 
     // Now, please, go
 }
@@ -379,4 +383,17 @@ function createGUI() {
         sidebar.append(HTMLGroup);
         igniteGUI();
     }
+}
+
+function loadCubeMap(path) {
+    // load cube map for background
+    var loader = new THREE.CubeTextureLoader();
+    loader.setPath('images/textures/cubemap/' + path + "/");
+
+    var textureCube = loader.load([
+        'px.png', 'nx.png',
+        'py.png', 'ny.png',
+        'pz.png', 'nz.png'
+    ]);
+    return textureCube;
 }

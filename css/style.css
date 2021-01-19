@@ -29,6 +29,7 @@ body {
     background-color: #F9F9F9;
     margin: 0px;
     overflow: hidden;
+    background: rgb(3, 7, 18);
 }
 
 .stats canvas {
@@ -52,6 +53,7 @@ body {
     letter-spacing: 0.05em;
     font-family: "FuturaPT-Heavy", sans-serif;
     z-index: 10;
+    color: white;
 }
 
 .canvas-container {
