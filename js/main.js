@@ -30,7 +30,7 @@ gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
 
 const DEFAULT_CAMERA_POSITION_X = 0,
     DEFAULT_CAMERA_POSITION_Y = 0,
-    DEFAULT_CAMERA_POSITION_Z = 4.5;
+    DEFAULT_CAMERA_POSITION_Z = 4.2;
 
 // -----------------------------------------------
 // START
@@ -348,7 +348,7 @@ function setMaterial(group, material) {
     applyRecursive(group, (child) => { child.material = material });
 }
 
-function getMaterialbyName(name) { // TODO: DA SISTEMARE!
+function getMaterialByName(name) { // TODO: DA SISTEMARE!
     return mats.find(obj => obj.name === name);
 }
 

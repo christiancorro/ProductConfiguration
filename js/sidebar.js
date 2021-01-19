@@ -1,18 +1,11 @@
-function igniteGUI(params) {
+function igniteGUI() {
 
     let groups = $('#sidebar li.group');
     let group_button = $('.group-button');
-    let animateTime = 10; //ms
+    let animateTime = 200; //ms
     let material = $('.material');
     let collapse = $('.collapse');
 
-
-    // group_button.mousedown(function (e) {
-    //     group.toggleClass("open");
-    //     console.log("open");
-    // });
-
-    // group.each(function (i) {
     group_button.mousedown(function (e) {
         e.stopPropagation();
         e.stopImmediatePropagation();
@@ -31,6 +24,7 @@ function igniteGUI(params) {
         let group = material_panel.parent();
         let group_name = group.find(".group-label").text();
         let material_name = $(this).find(".material-label").text();
+        let set_material_label = group.find(".group-set-material-label");
 
         material_panel.children().each(function (e) {
             $(this).removeClass("set");
@@ -40,6 +34,7 @@ function igniteGUI(params) {
         $(this).toggleClass("set");
         console.log("setMaterial: \nGroup: " + group_name + "\nMaterial: " + material_name);
         setMaterial(getGroup(group_name), getMaterialbyName(material_name));
+        set_material_label.text(material_name);
     });
 
 
@@ -49,7 +44,6 @@ function igniteGUI(params) {
         })
     });
 
-    // });
     interact();
 }
 

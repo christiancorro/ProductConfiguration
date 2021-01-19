@@ -36,39 +36,6 @@
     /* Standard */
 }
 
-/* content style */
-
-/* #sidebar h2 {
-    padding: 2em;
-    padding-left: 80px;
-    color: #fff;
-    background: #fff;
-    font-weight: 300;
-    font-size: 1.15em;
-    font-family: 'Alegreya Sans SC', sans-serif;
-    letter-spacing: .02em;
-    cursor: pointer;
-    -webkit-transition: color 0.3s ease;
-} */
-
-/* 
-#sidebar ul li a {
-    display: block;
-    font-family: 'Alegreya Sans SC', sans-serif;
-    padding: 1.5em 1em 1.5em 1em;
-    outline: none;
-    color: #fff;
-    text-transform: uppercase;
-    text-shadow: 0 0 1px rgba(255, 255, 255, 0.1);
-    letter-spacing: 0.2em;
-    font-size: 1.1em;
-    font-weight: 400;
-    -webkit-transition: all 0.3s, box-shadow 0.3s;
-    transition: all 0.25s, box-shadow 0.3s ease;
-} */
-
-/* TODO: sottolineatura on hover */
-
 #sidebar ul li {
     /* margin-left: 100px; */
     opacity: .6;
@@ -84,30 +51,6 @@
     -webkit-transition: all .5s ease;
     transition: all .5s ease;
 }
-
-/* #sidebar ul li:hover #sidebar ul li:after {
-    width: 90%;
-    transition: 0.3s ease all;
-} */
-
-#sidebar ul li:hover {
-    /* background: rgba(0, 0, 0, 1); */
-    /* height: 60px;
-    line-height: 60px; */
-    /* color: #ffffff; */
-}
-
-/*SIDEBAR*/
-
-/* #sidebar {
-    -webkit-transform: translate3d(-100%, 0, 0);
-    transform: translate3d(-100%, 0, 0);
-}
-
-#sidebar.open {
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
-} */
 
 * {
     margin: 0;
@@ -295,7 +238,9 @@
 }
 
 #sidebar .material-panel .material.set .material-preview img {
-    filter: grayscale(0);
+    /* filter: grayscale(0); */
+    transform: scale(1.15);
+    box-shadow: 0 0 5px rgb(170, 170, 170);
 }
 
 #sidebar .material-panel .material .material-preview img {
@@ -305,12 +250,14 @@
     display: block;
     margin: 0 auto;
     box-shadow: 0 0 3px rgb(110, 110, 110);
-    filter: grayscale(80%);
-    transition: filter .3s ease-in-out;
+    /* filter: grayscale(80%); */
+    transition: all .2s ease;
 }
 
 #sidebar .material-panel .material:hover img {
-    filter: grayscale(0);
+    /* filter: grayscale(0); */
+    transform: scale(1.05);
+    box-shadow: 0 0 3px rgb(139, 139, 139);
 }
 
 #sidebar .material-panel .material:hover .material-label {
@@ -338,12 +285,12 @@
     font-style: italic;
     font-size: 0.8em;
     color: #888888;
-    display: block;
+    display: inline-block;
     margin-left: 20px;
     margin-bottom: 15px;
     margin-top: -20px;
     cursor: pointer;
-    width: 60px;
+    width: 70px;
     transition: color .3s ease-in-out;
 }
 

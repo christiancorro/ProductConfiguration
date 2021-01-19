@@ -106,10 +106,6 @@
     transform: translate(4px, 2px) rotate(-45deg);
 }
 
-#main_menu:not(.active):hover {
-    /*      box-shadow: 1px 0px 5px rgba(44, 44, 44, 0.51);*/
-}
-
 #menu_container.active #main_menu+#main_menu_alert {
     left: 115px;
 }
@@ -154,20 +150,3 @@
     margin-left: 15px;
     text-align: right;
 }
-
-/* Chrome, Safari, Opera */
-
-/*
- @-webkit-keyframes hiddeMenu {
-     0% {
-         left: -4px;
-         display: inline-block !important;
-     }
-     25% {
-         left: 10px;
-         opacity: 1;
-     }
-     100% {
-         left: -130px;
-         opacity: 0;
-     }*/
