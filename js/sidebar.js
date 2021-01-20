@@ -11,7 +11,7 @@ function igniteGUI() {
         e.stopImmediatePropagation();
         let parent = $(this).parent();
         parent.toggleClass('open');
-        console.log("open");
+        // console.log("open");
         if (parent.is('.open')) {
             autoHeightAnimate(parent, animateTime);
         } else {
@@ -32,7 +32,7 @@ function igniteGUI() {
         e.stopPropagation();
         e.stopImmediatePropagation();
         $(this).toggleClass("set");
-        console.log("setMaterial: \nGroup: " + group_name + "\nMaterial: " + material_name);
+        console.log(group_name + " → " + material_name);
         setMaterial(getGroup(group_name), getMaterialByName(material_name));
         set_material_label.text(material_name);
     });

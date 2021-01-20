@@ -15,9 +15,10 @@ let fov = 60,
 const textureLoader = new THREE.TextureLoader();
 const gltfLoader = new THREE.GLTFLoader();
 
-let cubeMap = loadCubeMap("skybox");
+let envMap = loadCubeMap("skybox");
+envMap.minFilter = THREE.LinearMipMapLinearFilter;
 
-gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
+gltfLoader.load('../models/stratocaster/stratocaster.gltf', function (gltf) {
 
     strat = gltf.scene.children[0];
     // strat.rotation.y = -Math.PI / 12;    
@@ -25,6 +26,8 @@ gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
     strat.position.set(0, 0, 0);
     world.add(strat);
 
+    // TODO: se non funziona aggiungi:
+    // THREE.BufferGeometryUtils.computeTangents(geometry);
     Start();
     Update();
 
@@ -62,6 +65,12 @@ function Start() {
     // renderer.setSize(canvas.width, canvas.height);
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setClearColor(bgColor);
+
+    // renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMapping = THREE.LinearToneMapping;
+    // renderer.toneMappingExposure = 0.9;
+    // this.renderer.toneMappingWhitePoint = 1.0;
+    // renderer.outputEncoding = THREE.sRGBEncoding;
     // document.body.appendChild(renderer.domElement);
 
     camera.position.set(DEFAULT_CAMERA_POSITION_X, DEFAULT_CAMERA_POSITION_Y, DEFAULT_CAMERA_POSITION_Z);
@@ -83,7 +92,8 @@ function Start() {
 
     // world.add(plane);
     scene.add(world);
-    scene.background = cubeMap;
+    scene.background = envMap;
+    scene.environment = envMap;
 
 
 
@@ -96,68 +106,140 @@ function Start() {
     let plastic_black = new THREE.MeshBasicMaterial({ color: 0x000000 });
     plastic_black.name = "Black plastic";
 
-    let material = new THREE.ShaderMaterial({
-
+    let materialPsychedelic = new THREE.ShaderMaterial({
         uniforms: uniforms,
-        vertexShader: document.getElementById('vertexShader').textContent,
-        fragmentShader: document.getElementById('fragmentShader').textContent
+        vertexShader: document.getElementById('vertex_psychedelic').textContent,
+        fragmentShader: document.getElementById('fragment_psychedelic').textContent
+
+    });
+    materialPsychedelic.name = "Psychedelic";
+
+    //TODO: capire quali normali mandare
+
+    // let normalMap = loadTexture("../textures/materials/wood/wood_normal.jpg");
+    let diffuseMap = loadTexture("../textures/materials/wood/wood_col.jpg");
+    let specularMap = loadTexture("../textures/materials/wood/wood_spec.png");
+    let roughnessMap = loadTexture("../textures/materials/wood/wood_rough.jpg");
+    let normalMap = loadTexture("../textures/materials/wood/wood_normal.jpg");
+
+    // let diffuseMapBronzo = loadTexture("../textures/materials/wood/wood_spec.jpg");
+    // let specularMapBronzo = loadTexture("../.jpg");
+    // let roughnessMapBronzo = loadTexture("textures/materials/bronzo_rgh.jpg");
+
+    let materialExtensions = {
+        shaderTextureLOD: true // set to use shader texture LOD
+    };
+
+    let unifrom_wood = {
+        specularMap: { type: "t", value: specularMap },
+        diffuseMap: { type: "t", value: diffuseMap },
+        roughnessMap: { type: "t", value: roughnessMap },
+        pointLightPosition: { type: "v3", value: new THREE.Vector3() },
+        clight: { type: "v3", value: new THREE.Vector3() },
+        ambientLight: { type: "v3", value: new THREE.Vector3() },
+        textureRepeat: { type: "v2", value: new THREE.Vector2(1, 1) },
+        normalMap: { type: "t", value: normalMap },
+        normalScale: { type: "v2", value: new THREE.Vector2(1, 1) },
+        envMap: { type: "t", value: envMap },
+        roughness: { type: "f", value: 0.5 },
+    }
+
+    let wood = new THREE.ShaderMaterial({
+        uniforms: unifrom_wood,
+        vertexShader: document.getElementById('vertex-texture').textContent,
+        fragmentShader: document.getElementById('fragment-texture').textContent,
+        extensions: materialExtensions
 
     });
 
-    material.name = "Psychedelic";
+    var lightParameters = {
+        red: 1.0,
+        green: 1.0,
+        blue: 1.0,
+        intensity: 1.0,
+    };
+    var ambientLightParameters = {
+        red: 0.2,
+        green: 0.2,
+        blue: 0.2,
+        intensity: 0.1,
+    };
+
+
+    unifrom_wood.clight.value = new THREE.Vector3(
+        lightParameters.red * lightParameters.intensity,
+        lightParameters.green * lightParameters.intensity,
+        lightParameters.blue * lightParameters.intensity);
+
+    let lightMesh = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 16),
+        new THREE.MeshBasicMaterial({ color: 0xffff00, wireframe: true }));
+    lightMesh.position.set(7.0, 7.0, 7.0);
+    unifrom_wood.pointLightPosition.value = new THREE.Vector3(lightMesh.position.x,
+        lightMesh.position.y,
+        lightMesh.position.z);
+
+
+    unifrom_wood.ambientLight.value = new THREE.Vector3(
+        ambientLightParameters.red * ambientLightParameters.intensity,
+        ambientLightParameters.green * ambientLightParameters.intensity,
+        ambientLightParameters.blue * ambientLightParameters.intensity);
+
+
+    wood.name = "Wood";
 
 
     mats.push(plastic_red);
     mats.push(plastic_white);
     mats.push(plastic_black);
     mats.push(wireMaterial);
-    mats.push(material);
+    mats.push(wood);
+    mats.push(materialPsychedelic);
 
 
     materials = {
         "body": {
-            "defaultMaterial": material,
-            "availableMaterials": [material, plastic_red, plastic_white, plastic_black, wireMaterial]
+            "defaultMaterial": wood,
+            "availableMaterials": [wood, materialPsychedelic, plastic_red, plastic_white, plastic_black, wireMaterial]
         },
         "pickguard": {
             "defaultMaterial": plastic_white,
-            "availableMaterials": [material, plastic_red, plastic_black, wireMaterial, plastic_white]
+            "availableMaterials": [wood, materialPsychedelic, plastic_red, plastic_black, wireMaterial, plastic_white]
         },
         "frets": {
             "defaultMaterial": plastic_black,
-            "availableMaterials": [plastic_red, plastic_white, plastic_black, material, wireMaterial]
+            "availableMaterials": [wood, plastic_red, plastic_white, plastic_black, materialPsychedelic, wireMaterial]
         },
         "fret-markers": {
             "defaultMaterial": plastic_white,
-            "availableMaterials": [plastic_red, plastic_white, wireMaterial]
+            "availableMaterials": [wood, plastic_red, plastic_white, wireMaterial]
         },
         "metals": {
-            "defaultMaterial": material,
-            "availableMaterials": [plastic_red, wireMaterial, material]
+            "defaultMaterial": materialPsychedelic,
+            "availableMaterials": [wood, plastic_red, wireMaterial, materialPsychedelic]
         },
         "head": {
-            "defaultMaterial": material,
-            "availableMaterials": [material, plastic_red, wireMaterial]
+            "defaultMaterial": materialPsychedelic,
+            "availableMaterials": [wood, materialPsychedelic, plastic_red, wireMaterial]
         },
         "logo": {
             "defaultMaterial": plastic_black,
-            "availableMaterials": [plastic_white, plastic_red, plastic_black, wireMaterial]
+            "availableMaterials": [wood, plastic_white, plastic_red, plastic_black, wireMaterial]
         },
         "neck": {
-            "defaultMaterial": material,
-            "availableMaterials": [material, plastic_red, wireMaterial]
+            "defaultMaterial": materialPsychedelic,
+            "availableMaterials": [wood, materialPsychedelic, plastic_red, wireMaterial]
         },
         "knobs-text": {
             "defaultMaterial": plastic_white,
-            "availableMaterials": [material, plastic_red, wireMaterial, plastic_white]
+            "availableMaterials": [wood, materialPsychedelic, plastic_red, wireMaterial, plastic_white]
         },
         "plastics": {
-            "defaultMaterial": material,
-            "availableMaterials": [material, plastic_red, wireMaterial]
+            "defaultMaterial": materialPsychedelic,
+            "availableMaterials": [materialPsychedelic, plastic_red, wireMaterial]
         },
         "strings": {
             "defaultMaterial": plastic_white,
-            "availableMaterials": [material, plastic_white, plastic_red, wireMaterial]
+            "availableMaterials": [materialPsychedelic, plastic_white, plastic_red, wireMaterial]
         }
     }
 
@@ -169,7 +251,7 @@ function Start() {
     // }
 
     let body = getGroup("root");
-    setMaterial(body, material);
+    setMaterial(body, materialPsychedelic);
     setMaterial(getGroup("pickguard"), new THREE.LineDashedMaterial({ color: 0xFFF1F1 }));
 
 
@@ -178,8 +260,8 @@ function Start() {
 
 
     // Lights
-    addLight(0.3, -50, 100, 10);
-    addLight(0.2, 0, 1, 2);
+    // addLight(0.3, -50, 100, 10);
+    // addLight(0.2, 0, 1, 2);
     // addLight(0.5, -1, 1, -2);
     // addLight(10, 10, 2);
 
@@ -203,13 +285,14 @@ function Start() {
     controls.minDistance = 0.1;
     controls.maxDistance = 5;
     controls.enableDamping = true;
-    controls.enablePan = false;
+    // controls.enablePan = false;
     controls.dampingFactor = 0.2;
     // controls.maxPolarAngle = Math.PI / 2;
     // controls.minPolarAngle = Math.PI * 0.05;
     controls.enableKeys = true;
 
     // Now, please, go
+
 }
 
 
@@ -246,12 +329,6 @@ function save(blob, filename) {
     link.click();
 }
 
-function addLight(intensity, ...pos) {
-    const color = 0xFFFFFF;
-    const light = new THREE.DirectionalLight(color, intensity);
-    light.position.set(...pos);
-    scene.add(light);
-}
 
 // function setMaterial(mesh, material) {
 //     mesh.material = material;
@@ -341,8 +418,8 @@ function applyRecursive(group, func) {
 function setMaterials() {
     for (let i = 0; i < strat.children.length; i++) {
         let c = strat.children[i];
-        console.log(c.name);
-        console.log(materials[c.name].defaultMaterial.name);
+        // console.log(c.name);
+        // console.log(materials[c.name].defaultMaterial.name);
         setMaterial(c, materials[c.name].defaultMaterial);
     }
 }
@@ -388,7 +465,7 @@ function createGUI() {
 function loadCubeMap(path) {
     // load cube map for background
     var loader = new THREE.CubeTextureLoader();
-    loader.setPath('images/textures/cubemap/' + path + "/");
+    loader.setPath('textures/cubemap/' + path + "/");
 
     var textureCube = loader.load([
         'px.png', 'nx.png',
@@ -396,4 +473,15 @@ function loadCubeMap(path) {
         'pz.png', 'nz.png'
     ]);
     return textureCube;
+}
+
+function loadTexture(file) {
+    var texture = new THREE.TextureLoader().load(file, function (texture) {
+        texture.minFilter = THREE.LinearMipMapLinearFilter;
+        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        texture.offset.set(0, 0);
+        texture.needsUpdate = true;
+    })
+    return texture;
 }
