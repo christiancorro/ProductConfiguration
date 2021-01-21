@@ -67,22 +67,16 @@ function Start() {
     renderer.setClearColor(bgColor);
 
     // renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    // renderer.toneMappingExposure = 1.2;
+    // renderer.toneMappingExposure = 1;
     // this.renderer.toneMappingWhitePoint = 1.0;
     // renderer.outputEncoding = THREE.sRGBEncoding;
-    // document.body.appendChild(renderer.domElement);
 
     camera.position.set(DEFAULT_CAMERA_POSITION_X, DEFAULT_CAMERA_POSITION_Y, DEFAULT_CAMERA_POSITION_Z);
     camera.lookAt(new THREE.Vector3(0, 0.4, 0));
 
-    params = {
-
-    };
-
-
     let planeGeometry = new THREE.PlaneBufferGeometry(10, 10, 32, 32);
-    let wireMaterial = new THREE.MeshBasicMaterial({ color: 0xbababa, wireframe: true });
-    wireMaterial.name = "Wired"
+    let wireMaterial = new THREE.MeshBasicMaterial({ color: 0x999999, wireframe: true });
+    wireMaterial.name = "Wireframe";
 
     plane = new THREE.Mesh(planeGeometry, wireMaterial);
     plane.position.set(0, -0.1, 0);
@@ -109,8 +103,6 @@ function Start() {
     });
     materialPsychedelic.name = "Psychedelic";
 
-    //TODO: capire quali normali mandare
-
     // let normalMap = loadTexture("textures/materials/wood/wood_normal.jpg");
     let diffuseMap = loadTexture("textures/materials/wood/wood_col.jpg");
     let roughnessMap = loadTexture("textures/materials/wood/wood_rough.jpg");
@@ -119,6 +111,11 @@ function Start() {
     let normalMap = loadTexture("textures/materials/wood/wood_normal.jpg");
     let normalMapMetal = loadTexture("textures/materials/metal/Metal032_1K_Normal.jpg");
     let normalMapPlastic = loadTexture("textures/materials/plastic/Plastic006_1K_Normal.jpg");
+
+
+    let diffuseMapChain = loadTexture("/textures/materials/chain/Chainmail004_1K_Color.jpg");
+    let normalMapChain = loadTexture("/textures/materials/chain/Chainmail004_1K_Normal.jpg");
+    let roughnessMapChain = loadTexture("/textures/materials/chain/Chainmail004_1K_Roughness.jpg");
 
     // let diffuseMapBronzo = loadTexture("textures/materials/wood/wood_spec.jpg");
     // let specularMapBronzo = loadTexture(".jpg");
@@ -129,39 +126,43 @@ function Start() {
         shaderTextureLOD: true // set to use shader texture LOD
     };
 
-    let cspecgold = {
+    let cspec_gold = {
         red: 1.022,
         green: 0.782,
         blue: 0.344
     };
 
+    let cspec_copper = {
+        red: 0.955,
+        green: 0.638,
+        blue: 0.538
+    };
 
-    let cdiffpl = {
+    let cspec_silver = {
+        red: 0.972,
+        green: 0.960,
+        blue: 0.915
+    };
+
+    let cdiff_plastic_white = {
         red: 1,
         green: 1,
         blue: 1
     };
 
-
-    let uniforms_glossy = {
-        cspec: { type: "v3", value: new THREE.Vector3(0.8, 0.8, 0.8) },
-        normalMap: { type: "t", value: normalMap },
-        normalScale: { type: "v2", value: new THREE.Vector2(1, 1) },
-        envMap: { type: "t", value: envMap },
-        roughness: { type: "f", value: 0.5 },
+    let cdiff_plastic_black = {
+        red: 0.2,
+        green: 0.2,
+        blue: 0.2
     };
 
+    let cdiff_plastic_old_white = {
+        red: 1,
+        green: 1,
+        blue: 0.8
+    };
 
-    let glossy = new THREE.ShaderMaterial({
-        uniforms: uniforms_glossy,
-        vertexShader: document.getElementById('vs').textContent,
-        fragmentShader: document.getElementById('fs_metal').textContent,
-        extensions: materialExtensions
-
-    });
-
-
-    //parametri di illuminazione
+    // lights params
     var lightParameters = {
         red: 1.0,
         green: 1.0,
@@ -204,53 +205,9 @@ function Start() {
         intensity: 0.1,
     };
 
-
-    let unifrom_wood = {
-        diffuseMap: { type: "t", value: diffuseMap },
-        roughnessMap: { type: "t", value: roughnessMap },
-        cspec: { type: "v3", value: new THREE.Vector3(0.04, 0.04, 0.04) },
-        cdiff: { type: "v3", value: new THREE.Vector3(0.5, 0.5, 0.5) },
-
-        normalMap: { type: "t", value: normalMap },
-        normalScale: { type: "v2", value: new THREE.Vector2(1, 1) },
-
-        irradianceMap: { type: "t", value: irradianceMap },
-
-        textureRepeat: { type: "v2", value: new THREE.Vector2(1, 1) },
-
-        envMap: { type: "t", value: envMap },
-
-        pointLightPosition: { type: "v3", value: new THREE.Vector3() },
-        pointLightPosition2: { type: "v3", value: new THREE.Vector3() },
-        pointLightPosition3: { type: "v3", value: new THREE.Vector3() },
-        ambientLight: { type: "v3", value: new THREE.Vector3() },
-
-        clight: { type: 'v3', value: cl },
-        clight2: { type: 'v3', value: cl2 },
-        clight3: { type: 'v3', value: cl3 }
-    };
-
-    let wood = new THREE.ShaderMaterial({
-        uniforms: unifrom_wood,
-        vertexShader: document.getElementById('vs').textContent,
-        fragmentShader: document.getElementById('fs_texture').textContent,
-        extensions: materialExtensions
-    });
-
-
-    unifrom_wood.clight.value = new THREE.Vector3(
-        lightParameters.red * lightParameters.intensity,
-        lightParameters.green * lightParameters.intensity,
-        lightParameters.blue * lightParameters.intensity);
-
-    unifrom_wood.ambientLight.value = new THREE.Vector3(
-        ambientLightParameters.red * ambientLightParameters.intensity,
-        ambientLightParameters.green * ambientLightParameters.intensity,
-        ambientLightParameters.blue * ambientLightParameters.intensity);
-
     //prima luce leggermente gialla da interno
-    lightMesh = new THREE.Mesh(new THREE.SphereGeometry(0.1, 32, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(lightParameters.red, lightParameters.green, lightParameters.blue) }));
-    lightMesh.position.set(23, -5, 30);
+    lightMesh = new THREE.Mesh(new THREE.SphereGeometry(5, 32, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(lightParameters.red, lightParameters.green, lightParameters.blue) }));
+    lightMesh.position.set(33, -8, 100);
 
     scene.add(lightMesh);
 
@@ -265,79 +222,242 @@ function Start() {
     lightMesh3.position.set(40, -10, -30);
     scene.add(lightMesh3);
 
-    unifrom_wood.pointLightPosition.value = new THREE.Vector3(lightMesh.position.x,
-        lightMesh.position.y,
-        lightMesh.position.z);
 
-    unifrom_wood.pointLightPosition2.value = new THREE.Vector3(lightMesh2.position.x,
-        lightMesh.position.y,
-        lightMesh.position.z);
-
-    unifrom_wood.pointLightPosition3.value = new THREE.Vector3(lightMesh3.position.x,
-        lightMesh.position.y,
-        lightMesh.position.z);
-
-
-
-    let uniformsMetal = {
-        cspec: { type: "v3", value: new THREE.Vector3(0.8, 0.8, 0.8) },
-        roughness: { type: "f", value: 0 },
-
-        normalMap: { type: "t", value: normalMapMetal },
-        normalScale: { type: "v2", value: new THREE.Vector2(0.1, 0.1) },
-
+    let uniform_wood = {
+        diffuseMap: { type: "t", value: diffuseMap },
+        roughnessMap: { type: "t", value: roughnessMap },
+        cspec: { type: "v3", value: new THREE.Vector3(0.04, 0.04, 0.04) },
+        cdiff: { type: "v3", value: new THREE.Vector3(0.5, 0.5, 0.5) },
+        normalMap: { type: "t", value: normalMap },
+        normalScale: { type: "v2", value: new THREE.Vector2(1, 1) },
+        irradianceMap: { type: "t", value: irradianceMap },
+        textureRepeat: { type: "v2", value: new THREE.Vector2(1, 1) },
         envMap: { type: "t", value: envMap },
 
         pointLightPosition: { type: "v3", value: new THREE.Vector3() },
         pointLightPosition2: { type: "v3", value: new THREE.Vector3() },
         pointLightPosition3: { type: "v3", value: new THREE.Vector3() },
-
+        ambientLight: { type: "v3", value: new THREE.Vector3() },
         clight: { type: 'v3', value: cl },
         clight2: { type: 'v3', value: cl2 },
         clight3: { type: 'v3', value: cl3 }
     };
 
-    uniformsMetal.cspec.value = new THREE.Vector3(
-        cspecgold.red,
-        cspecgold.green,
-        cspecgold.blue
+    let wood = new THREE.ShaderMaterial({
+        uniforms: uniform_wood,
+        vertexShader: document.getElementById('vs').textContent,
+        fragmentShader: document.getElementById('fs_texture').textContent,
+        extensions: materialExtensions
+    });
+
+    wood.name = "Wood";
+
+    uniform_wood.pointLightPosition.value = new THREE.Vector3(lightMesh.position.x,
+        lightMesh.position.y,
+        lightMesh.position.z);
+
+    uniform_wood.pointLightPosition2.value = new THREE.Vector3(lightMesh2.position.x,
+        lightMesh.position.y,
+        lightMesh.position.z);
+
+    uniform_wood.pointLightPosition3.value = new THREE.Vector3(lightMesh3.position.x,
+        lightMesh.position.y,
+        lightMesh.position.z);
+
+    uniform_wood.clight.value = new THREE.Vector3(
+        lightParameters.red * lightParameters.intensity,
+        lightParameters.green * lightParameters.intensity,
+        lightParameters.blue * lightParameters.intensity);
+
+    uniform_wood.ambientLight.value = new THREE.Vector3(
+        ambientLightParameters.red * ambientLightParameters.intensity,
+        ambientLightParameters.green * ambientLightParameters.intensity,
+        ambientLightParameters.blue * ambientLightParameters.intensity);
+
+    let uniform_chain = {
+        diffuseMap: { type: "t", value: diffuseMapChain },
+        roughnessMap: { type: "t", value: roughnessMapChain },
+        cspec: { type: "v3", value: new THREE.Vector3(0.04, 0.04, 0.04) },
+        cdiff: { type: "v3", value: new THREE.Vector3(0.5, 0.5, 0.5) },
+        normalMap: { type: "t", value: normalMapChain },
+        normalScale: { type: "v2", value: new THREE.Vector2(2, 2) },
+        irradianceMap: { type: "t", value: irradianceMap },
+        textureRepeat: { type: "v2", value: new THREE.Vector2(1, 1) },
+        envMap: { type: "t", value: envMap },
+
+        pointLightPosition: { type: "v3", value: new THREE.Vector3() },
+        pointLightPosition2: { type: "v3", value: new THREE.Vector3() },
+        pointLightPosition3: { type: "v3", value: new THREE.Vector3() },
+        ambientLight: { type: "v3", value: new THREE.Vector3() },
+        clight: { type: 'v3', value: cl },
+        clight2: { type: 'v3', value: cl2 },
+        clight3: { type: 'v3', value: cl3 }
+    };
+
+    let chain = new THREE.ShaderMaterial({
+        uniforms: uniform_chain,
+        vertexShader: document.getElementById('vs').textContent,
+        fragmentShader: document.getElementById('fs_texture').textContent,
+        extensions: materialExtensions
+    });
+
+    chain.name = "Chain";
+
+    uniform_chain.pointLightPosition.value = new THREE.Vector3(lightMesh.position.x,
+        lightMesh.position.y,
+        lightMesh.position.z);
+
+    uniform_chain.pointLightPosition2.value = new THREE.Vector3(lightMesh2.position.x,
+        lightMesh.position.y,
+        lightMesh.position.z);
+
+    uniform_chain.pointLightPosition3.value = new THREE.Vector3(lightMesh3.position.x,
+        lightMesh.position.y,
+        lightMesh.position.z);
+
+    uniform_chain.clight.value = new THREE.Vector3(
+        lightParameters.red * lightParameters.intensity,
+        lightParameters.green * lightParameters.intensity,
+        lightParameters.blue * lightParameters.intensity);
+
+    uniform_chain.ambientLight.value = new THREE.Vector3(
+        ambientLightParameters.red * ambientLightParameters.intensity,
+        ambientLightParameters.green * ambientLightParameters.intensity,
+        ambientLightParameters.blue * ambientLightParameters.intensity);
+
+
+    let uniformsGold = {
+        cspec: { type: "v3", value: new THREE.Vector3(0.8, 0.8, 0.8) },
+        roughness: { type: "f", value: 0.1 },
+        normalMap: { type: "t", value: normalMapMetal },
+        normalScale: { type: "v2", value: new THREE.Vector2(0.1, 0.1) },
+        envMap: { type: "t", value: envMap },
+
+        pointLightPosition: { type: "v3", value: new THREE.Vector3() },
+        pointLightPosition2: { type: "v3", value: new THREE.Vector3() },
+        pointLightPosition3: { type: "v3", value: new THREE.Vector3() },
+        clight: { type: 'v3', value: cl },
+        clight2: { type: 'v3', value: cl2 },
+        clight3: { type: 'v3', value: cl3 }
+    };
+
+    uniformsGold.pointLightPosition.value = new THREE.Vector3(
+        lightMesh.position.x,
+        lightMesh.position.y,
+        lightMesh.position.z);
+
+
+    uniformsGold.cspec.value = new THREE.Vector3(
+        cspec_gold.red,
+        cspec_gold.green,
+        cspec_gold.blue
     );
 
-    let metal = new THREE.ShaderMaterial({
-        uniforms: uniformsMetal,
+    let uniformsSilver = {
+        cspec: { type: "v3", value: new THREE.Vector3(0.8, 0.8, 0.8) },
+        roughness: { type: "f", value: 0.1 },
+        normalMap: { type: "t", value: normalMapMetal },
+        normalScale: { type: "v2", value: new THREE.Vector2(0.2, 0.2) },
+        envMap: { type: "t", value: envMap },
+
+        pointLightPosition: { type: "v3", value: new THREE.Vector3() },
+        pointLightPosition2: { type: "v3", value: new THREE.Vector3() },
+        pointLightPosition3: { type: "v3", value: new THREE.Vector3() },
+        clight: { type: 'v3', value: cl },
+        clight2: { type: 'v3', value: cl2 },
+        clight3: { type: 'v3', value: cl3 }
+    };
+
+
+    uniformsSilver.pointLightPosition.value = new THREE.Vector3(
+        lightMesh.position.x,
+        lightMesh.position.y,
+        lightMesh.position.z);
+
+
+    uniformsSilver.cspec.value = new THREE.Vector3(
+        cspec_silver.red,
+        cspec_silver.green,
+        cspec_silver.blue
+    );
+
+    let uniformsCopper = {
+        cspec: { type: "v3", value: new THREE.Vector3(0.8, 0.8, 0.8) },
+        roughness: { type: "f", value: 0.1 },
+        normalMap: { type: "t", value: normalMapMetal },
+        normalScale: { type: "v2", value: new THREE.Vector2(1, 1) },
+        envMap: { type: "t", value: envMap },
+
+        pointLightPosition: { type: "v3", value: new THREE.Vector3() },
+        pointLightPosition2: { type: "v3", value: new THREE.Vector3() },
+        pointLightPosition3: { type: "v3", value: new THREE.Vector3() },
+        clight: { type: 'v3', value: cl },
+        clight2: { type: 'v3', value: cl2 },
+        clight3: { type: 'v3', value: cl3 }
+    };
+
+
+    uniformsCopper.pointLightPosition.value = new THREE.Vector3(
+        lightMesh.position.x,
+        lightMesh.position.y,
+        lightMesh.position.z);
+
+
+    uniformsCopper.cspec.value = new THREE.Vector3(
+        cspec_copper.red,
+        cspec_copper.green,
+        cspec_copper.blue
+    );
+
+    let gold = new THREE.ShaderMaterial({
+        uniforms: uniformsGold,
         vertexShader: document.getElementById('vs').textContent,
         fragmentShader: document.getElementById('fs_metal').textContent,
         extensions: materialExtensions
     });
 
+    gold.name = "Gold";
+
+    let silver = new THREE.ShaderMaterial({
+        uniforms: uniformsSilver,
+        vertexShader: document.getElementById('vs').textContent,
+        fragmentShader: document.getElementById('fs_metal').textContent,
+        extensions: materialExtensions
+    });
+
+    silver.name = "Silver";
+
+    let copper = new THREE.ShaderMaterial({
+        uniforms: uniformsCopper,
+        vertexShader: document.getElementById('vs').textContent,
+        fragmentShader: document.getElementById('fs_metal').textContent,
+        extensions: materialExtensions
+    });
+
+    copper.name = "Copper";
+
     let uniformsPlastic = {
         roughnessMap: { type: "t", value: roughnessMapPlastic },
         cspec: { type: "v3", value: new THREE.Vector3(0.04, 0.04, 0.04) },
-
         cdiff: { type: "v3", value: new THREE.Vector3(0.5, 0.5, 0.5) },
-
         normalMap: { type: "t", value: normalMapPlastic },
-        normalScale: { type: "v2", value: new THREE.Vector2(0.1, 0.1) },
-
+        normalScale: { type: "v2", value: new THREE.Vector2(10, 10) },
         irradianceMap: { type: "t", value: irradianceMap },
         envMap: { type: "t", value: envMap },
 
         pointLightPosition: { type: "v3", value: new THREE.Vector3() },
         pointLightPosition2: { type: "v3", value: new THREE.Vector3() },
         pointLightPosition3: { type: "v3", value: new THREE.Vector3() },
-
         ambientLight: { type: "v3", value: new THREE.Vector3() },
-
-
         clight: { type: 'v3', value: cl },
         clight2: { type: 'v3', value: cl2 },
         clight3: { type: 'v3', value: cl3 }
     };
 
     uniformsPlastic.cdiff.value = new THREE.Vector3(
-        cdiffpl.red,
-        cdiffpl.green,
-        cdiffpl.blue
+        cdiff_plastic_white.red,
+        cdiff_plastic_white.green,
+        cdiff_plastic_white.blue
     );
 
     uniformsPlastic.ambientLight.value = new THREE.Vector3(
@@ -368,52 +488,51 @@ function Start() {
 
     white_plastic.name = "White plastic";
 
-    wood.name = "Wood";
-    metal.name = "Metal";
-
 
     mats.push(plastic_red);
-    mats.push(glossy);
     mats.push(white_plastic);
     mats.push(plastic_black);
     mats.push(wireMaterial);
     mats.push(wood);
-    mats.push(metal);
+    mats.push(gold);
+    mats.push(silver);
+    mats.push(copper);
     mats.push(materialPsychedelic);
+    mats.push(chain);
 
 
     materials = {
         "body": {
-            "defaultMaterial": wood,
-            "availableMaterials": [metal, wood, materialPsychedelic, plastic_red, white_plastic, plastic_black, wireMaterial]
+            "defaultMaterial": chain,
+            "availableMaterials": [chain, gold, silver, copper, wood, materialPsychedelic, plastic_red, white_plastic, plastic_black, wireMaterial]
         },
         "pickguard": {
-            "defaultMaterial": white_plastic,
-            "availableMaterials": [metal, wood, materialPsychedelic, plastic_red, plastic_black, wireMaterial, white_plastic]
+            "defaultMaterial": silver,
+            "availableMaterials": [gold, wood, materialPsychedelic, plastic_red, plastic_black, wireMaterial, white_plastic]
         },
         "frets": {
-            "defaultMaterial": metal,
-            "availableMaterials": [metal, wood, plastic_red, white_plastic, plastic_black, materialPsychedelic, wireMaterial]
+            "defaultMaterial": gold,
+            "availableMaterials": [gold, wood, plastic_red, white_plastic, plastic_black, materialPsychedelic, wireMaterial]
         },
         "fret-markers": {
             "defaultMaterial": white_plastic,
-            "availableMaterials": [metal, wood, plastic_red, white_plastic, plastic_black, wireMaterial]
+            "availableMaterials": [gold, wood, plastic_red, white_plastic, plastic_black, wireMaterial]
         },
         "metals": {
-            "defaultMaterial": metal,
-            "availableMaterials": [metal, wood, white_plastic, plastic_red, plastic_black, wireMaterial, materialPsychedelic]
+            "defaultMaterial": gold,
+            "availableMaterials": [gold, wood, white_plastic, plastic_red, plastic_black, wireMaterial, materialPsychedelic]
         },
         "head": {
-            "defaultMaterial": metal,
+            "defaultMaterial": gold,
             "availableMaterials": [wood, materialPsychedelic, plastic_black, plastic_red, wireMaterial]
         },
         "logo": {
             "defaultMaterial": plastic_black,
-            "availableMaterials": [metal, wood, white_plastic, plastic_red, plastic_black, wireMaterial]
+            "availableMaterials": [gold, wood, white_plastic, plastic_red, plastic_black, wireMaterial]
         },
         "neck": {
-            "defaultMaterial": metal,
-            "availableMaterials": [metal, wood, materialPsychedelic, plastic_red, plastic_black, wireMaterial]
+            "defaultMaterial": gold,
+            "availableMaterials": [gold, wood, materialPsychedelic, plastic_red, plastic_black, wireMaterial]
         },
         "knobs-text": {
             "defaultMaterial": white_plastic,
@@ -421,11 +540,11 @@ function Start() {
         },
         "plastics": {
             "defaultMaterial": white_plastic,
-            "availableMaterials": [metal, materialPsychedelic, white_plastic, plastic_red, plastic_black, wireMaterial]
+            "availableMaterials": [gold, materialPsychedelic, white_plastic, plastic_red, plastic_black, wireMaterial]
         },
         "strings": {
-            "defaultMaterial": metal,
-            "availableMaterials": [metal, materialPsychedelic, white_plastic, plastic_red, wireMaterial]
+            "defaultMaterial": gold,
+            "availableMaterials": [gold, materialPsychedelic, white_plastic, plastic_red, wireMaterial]
         }
     }
 
@@ -435,11 +554,6 @@ function Start() {
 
     //     c.material = material;
     // }
-
-    let body = getGroup("root");
-    setMaterial(body, materialPsychedelic);
-    setMaterial(getGroup("pickguard"), new THREE.LineDashedMaterial({ color: 0xFFF1F1 }));
-
 
     setMaterials();
     createGUI();
@@ -451,8 +565,6 @@ function Start() {
     // addLight(0.5, -1, 1, -2);
     // addLight(10, 10, 2);
 
-    ambientLight = new THREE.AmbientLight(0xffffff, params.ambientLightIntensity); // white light
-    scene.add(ambientLight);
 
     // Stats
     stats = new Stats();
