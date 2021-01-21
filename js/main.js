@@ -20,7 +20,7 @@ envMap.minFilter = THREE.LinearMipMapLinearFilter;
 
 let irradianceMap = loadCubeMap("irradiance_map");
 
-gltfLoader.load('../models/stratocaster/stratocaster.gltf', function (gltf) {
+gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
 
     strat = gltf.scene.children[0];
     // strat.rotation.y = -Math.PI / 12;    
@@ -249,19 +249,19 @@ function Start() {
         ambientLightParameters.blue * ambientLightParameters.intensity);
 
     //prima luce leggermente gialla da interno
-    lightMesh = new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(lightParameters.red, lightParameters.green, lightParameters.blue) }));
+    lightMesh = new THREE.Mesh(new THREE.SphereGeometry(0.1, 32, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(lightParameters.red, lightParameters.green, lightParameters.blue) }));
     lightMesh.position.set(23, -5, 30);
 
     scene.add(lightMesh);
 
-    //seconda luce non casta ombra per non creare confusione dato che arriva dalla stessa direzione della prima
-    lightMesh2 = new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(lightParameters2.red, lightParameters2.green, lightParameters2.blue) }));
+    //seconda luce non casta om bra per non creare confusione dato che arriva dalla stessa direzione della prima
+    lightMesh2 = new THREE.Mesh(new THREE.SphereGeometry(0.1, 32, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(lightParameters2.red, lightParameters2.green, lightParameters2.blue) }));
     lightMesh2.position.set(-30, -10, -40);
 
     scene.add(lightMesh2);
 
     //terza luce proveniente dall'esterno, bianca come luce solare
-    lightMesh3 = new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(lightParameters3.red, lightParameters3.green, lightParameters3.blue) }));
+    lightMesh3 = new THREE.Mesh(new THREE.SphereGeometry(0.1, 32, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(lightParameters3.red, lightParameters3.green, lightParameters3.blue) }));
     lightMesh3.position.set(40, -10, -30);
     scene.add(lightMesh3);
 
