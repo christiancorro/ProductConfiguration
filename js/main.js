@@ -111,17 +111,17 @@ function Start() {
 
     //TODO: capire quali normali mandare
 
-    // let normalMap = loadTexture("../textures/materials/wood/wood_normal.jpg");
-    let diffuseMap = loadTexture("../textures/materials/wood/wood_col.jpg");
-    let roughnessMap = loadTexture("../textures/materials/wood/wood_rough.jpg");
-    let roughnessMapPlastic = loadTexture("../textures/materials/plastic/Plastic006_1K_Roughness.jpg");
-    let roughnessMapMetal = loadTexture("../textures/materials/metal/Metal032_1K_Roughness.jpg");
-    let normalMap = loadTexture("../textures/materials/wood/wood_normal.jpg");
-    let normalMapMetal = loadTexture("../textures/materials/metal/Metal032_1K_Normal.jpg");
-    let normalMapPlastic = loadTexture("../textures/materials/plastic/Plastic006_1K_Normal.jpg");
+    // let normalMap = loadTexture("textures/materials/wood/wood_normal.jpg");
+    let diffuseMap = loadTexture("textures/materials/wood/wood_col.jpg");
+    let roughnessMap = loadTexture("textures/materials/wood/wood_rough.jpg");
+    let roughnessMapPlastic = loadTexture("textures/materials/plastic/Plastic006_1K_Roughness.jpg");
+    let roughnessMapMetal = loadTexture("textures/materials/metal/Metal032_1K_Roughness.jpg");
+    let normalMap = loadTexture("textures/materials/wood/wood_normal.jpg");
+    let normalMapMetal = loadTexture("textures/materials/metal/Metal032_1K_Normal.jpg");
+    let normalMapPlastic = loadTexture("textures/materials/plastic/Plastic006_1K_Normal.jpg");
 
-    // let diffuseMapBronzo = loadTexture("../textures/materials/wood/wood_spec.jpg");
-    // let specularMapBronzo = loadTexture("../.jpg");
+    // let diffuseMapBronzo = loadTexture("textures/materials/wood/wood_spec.jpg");
+    // let specularMapBronzo = loadTexture(".jpg");
     // let roughnessMapBronzo = loadTexture("textures/materials/bronzo_rgh.jpg");
 
     let materialExtensions = {
