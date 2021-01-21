@@ -18,7 +18,6 @@
     <script type='text/javascript' src="js/libs/RenderPass.js"></script>
     <script type='text/javascript' src="js/libs/ShaderPass.js"></script>
     <script type='text/javascript' src="js/libs/CopyShader.js"></script>
-    <script type='text/javascript' src="js/libs/BufferGeometryUtils.js"></script>
     <script type='text/javascript' src="js/libs/jquery-1.12.2.min.js"></script>
 </head>
 
@@ -70,86 +69,514 @@
 
     </script>
 
-    <script type="text/x-glsl" id="vertex-texture">
-		varying vec3 vNormal;
-		varying vec3 vPosition;
-		varying vec2 uVv;
+    <script type='text/x-glsl' id='fs_metal'>
+                precision highp float; 
+                precision highp int;
+    
+                varying vec3 vPosition;
+                varying vec3 wPosition;
+    
+                varying vec3 vNormal;
+                varying vec3 wNormal;
+                varying vec2 vUv;
+    
+                uniform vec3 pointLightPosition;
+                uniform vec3 pointLightPosition2;
+                uniform vec3 pointLightPosition3;
+                
+                uniform vec3 clight;
+                uniform vec3 clight2;
+                uniform vec3 clight3;
+    
+                uniform samplerCube envMap;
+    
+                uniform vec3 cspec;
+                uniform float roughness;
+    
+                uniform sampler2D normalMap;
+                uniform vec2 normalScale;
+    
+                const float PI = 3.14159;
+    
+                #define saturate(a) clamp( a, 0.0, 1.0 )
+    
+                float pow2( const in float x ) { return x*x; }
+    
+                float getSpecularMIPLevel( const in float blinnShininessExponent, const in int maxMIPLevel ) {
+                    float maxMIPLevelScalar = float( maxMIPLevel );
+                    float desiredMIPLevel = maxMIPLevelScalar - 0.79248 - 0.5 * log2( pow2( blinnShininessExponent ) + 1.0 );
+                    return clamp( desiredMIPLevel, 0.0, maxMIPLevelScalar );
+                }
+    
+                float GGXRoughnessToBlinnExponent( const in float ggxRoughness ) {
+                    return ( 2.0 / pow2( ggxRoughness + 0.0001 ) - 2.0 );
+                }
+    
+                float DGGX(float nDoth, float alpha) {
+                    float alpha2 = alpha*alpha;
+                    float d = nDoth*nDoth*(alpha2-1.0)+1.0;
+                    return (  alpha2 / (PI*d*d));
+                }
+    
+                float G1(float dotProduct, float k) {
+                    return (dotProduct / (dotProduct*(1.0-k) + k) );
+                }
+    
+                float GSmith(float nDotv, float nDotl) {
+                    float k = roughness*roughness;
+                    return G1(nDotl,k)*G1(nDotv,k);
+                }
+    
+                vec3 FSchlick(float lDoth) {
+                    return (cspec + (vec3(1.0)-cspec)*pow(1.0 - lDoth,5.0));
+                }
+    
+                vec3 perturbNormal2Arb( vec3 eye_pos, vec3 surf_norm ) {
+                    vec3 q0 = dFdx( eye_pos.xyz );
+                    vec3 q1 = dFdy( eye_pos.xyz );
+                    vec2 st0 = dFdx( vUv.st );
+                    vec2 st1 = dFdy( vUv.st );
+                    st0.xy += 0.0000001; // risolve ogni problema
+    
+                    vec3 S = normalize(  q0 * st1.t - q1 * st0.t );
+                    vec3 T = normalize( -q0 * st1.s + q1 * st0.s );
+                    vec3 N =  surf_norm ;
+    
+                    vec3 mapN = normalize(texture2D( normalMap, vUv ).xyz * 2.0 - 1.0);
+                    mapN.xy = normalScale * mapN.xy;
+                    mat3 tsn = mat3( S, T, N );
+                    return normalize( tsn * mapN );
+                }
+    
+                vec3 inverseTransformDirection( in vec3 dir, in mat4 matrix ) {
+                    return normalize( ( vec4( dir, 0.0 ) * matrix ).xyz );
+                }
+    
+                vec3 BRDF_Specular_GGX_Environment( vec3 normal, vec3 viewDir, const in vec3 cspec, const in float roughness ) {
+                    float dotNV = saturate( dot( normal, viewDir ) );
+                    const vec4 c0 = vec4( - 1, - 0.0275, - 0.572, 0.022 );
+                    const vec4 c1 = vec4( 1, 0.0425, 1.04, - 0.04 );
+                    vec4 r = roughness * c0 + c1;
+                    float a004 = min( r.x * r.x, exp2( - 9.28 * dotNV ) ) * r.x + r.y;
+                    vec2 AB = vec2( -1.04, 1.04 ) * a004 + r.zw;
+                    return cspec * AB.x + AB.y;
+                }
+    
+                void main() {
+                    vec4 lPosition = viewMatrix * vec4( pointLightPosition, 1.0 );
+                    vec4 lPosition2 = viewMatrix * vec4( pointLightPosition2, 1.0 );
+                    vec4 lPosition3 = viewMatrix * vec4( pointLightPosition3, 1.0 );
+    
+                    vec3 l = normalize(lPosition.xyz - vPosition.xyz);
+                    vec3 l2 = normalize(lPosition2.xyz - vPosition.xyz);
+                    vec3 l3 = normalize(lPosition3.xyz - vPosition.xyz);
+    
+                    //OBJ MODEL
+                    //TO MAKE NORMAL MAP WORK perturbNormal2Arb(...)
+                    vec3 n = perturbNormal2Arb( vPosition, normalize( vNormal )) ;
+                    vec3 worldN = inverseTransformDirection( n, viewMatrix );
+                    vec3 v = normalize( -vPosition);
+                    vec3 vReflect = reflect(vPosition, n);
+                    vec3 r = inverseTransformDirection(vReflect, viewMatrix);
+    
+                    vec3 h = normalize( v + l);
+                    vec3 h2 = normalize( v + l2);
+                    vec3 h3 = normalize( v + l3);
+    
+                    float nDotl = max(dot( n, l ),0.000001);
+                    float nDotl2 = max(dot( n, l2 ),0.000001);
+                    float nDotl3 = max(dot( n, l3 ),0.000001);
+    
+                    float lDoth = max(dot( l, h ),0.000001);
+                    float lDoth2 = max(dot( l2, h2 ),0.000001);
+                    float lDoth3 = max(dot( l3, h3 ),0.000001);
+    
+                    float nDoth = max(dot( n, h ),0.000001);
+                    float nDoth2 = max(dot( n, h2 ),0.000001);
+                    float nDoth3 = max(dot( n, h3 ),0.000001);
+    
+                    float vDoth = max(dot( v, h ),0.000001);
+                    float vDoth2 = max(dot( v, h2 ),0.000001);
+                    float vDoth3 = max(dot( v, h3 ),0.000001);
+    
+                    float nDotv = max(dot( n, v ),0.000001);
+    
+                    vec3 fresnel = FSchlick( lDoth );
+                    vec3 fresnel2 = FSchlick( lDoth2 );
+                    vec3 fresnel3 = FSchlick( lDoth3 );
+    
+                    float blinnShininessExponent = GGXRoughnessToBlinnExponent(roughness);
+                    float specularMIPLevel = getSpecularMIPLevel(blinnShininessExponent,8 );
+    
+                     vec3 envLight = textureCubeLodEXT( envMap, vec3(-r.x, r.yz), specularMIPLevel ).rgb;
+                     // texture in sRGB, linearize
+                    envLight = pow( envLight, vec3(2.2));
+    
+                    vec3 sBRDF = BRDF_Specular_GGX_Environment(n, v, cspec, roughness);
+    
+                    vec3 BRDF = fresnel*GSmith(nDotv,nDotl)*DGGX(nDoth,roughness*roughness)/(4.0*nDotl*nDotv);
+                    vec3 BRDF2 = fresnel2*GSmith(nDotv,nDotl2)*DGGX(nDoth2,roughness*roughness)/(4.0*nDotl2*nDotv);
+                    vec3 BRDF3 = fresnel3*GSmith(nDotv,nDotl3)*DGGX(nDoth3,roughness*roughness)/(4.0*nDotl3*nDotv);
+    
+                    vec3 outRadiance = envLight*sBRDF + ( (BRDF*nDotl*clight) + (nDotl3*BRDF3*clight3) ) * PI;
+                    // gamma encode the final value
+                    gl_FragColor = vec4(pow( outRadiance, vec3(1.0/2.2)), 1.0);
+                    //gl_FragColor = vec4(r,1.0);
+                }
+            </script>
+    <script type='text/x-glsl' id='fs_texture'>
+                precision highp float;
+                precision highp int;
+    
+                varying vec3 vPosition;
+                varying vec3 wPosition;
+                varying vec3 vNormal;
+                varying vec3 wNormal;
+                varying vec2 vUv;
+    
+                uniform vec3 pointLightPosition;
+                uniform vec3 pointLightPosition2;
+                uniform vec3 pointLightPosition3;
+                
+			uniform vec3 ambientLight;
+    
+                uniform vec3 clight;
+                uniform vec3 clight2;
+                uniform vec3 clight3;
+                uniform samplerCube envMap;
+    
+                vec3 cdiff;
+                uniform sampler2D diffuseMap;
+                
+                uniform vec3 cspec;
+    
+                float roughness;
+                uniform sampler2D roughnessMap;
+    
+                uniform sampler2D normalMap;
+                uniform vec2 normalScale;
+    
+                uniform samplerCube irradianceMap;
+    
+                uniform vec2 textureRepeat;
+                const float PI = 3.14159;
+    
+                #define saturate(a) clamp( a, 0.0, 1.0 )
+    
+                float pow2( const in float x ) { return x*x; }
+    
+                float getSpecularMIPLevel( const in float blinnShininessExponent, const in int maxMIPLevel ) {
+                    float maxMIPLevelScalar = float( maxMIPLevel );
+                    float desiredMIPLevel = maxMIPLevelScalar - 0.79248 - 0.5 * log2( pow2( blinnShininessExponent ) + 1.0 );
+                    return clamp( desiredMIPLevel, 0.0, maxMIPLevelScalar );
+                }
+    
+                float GGXRoughnessToBlinnExponent( const in float ggxRoughness ) {
+                    return ( 2.0 / pow2( ggxRoughness + 0.0001 ) - 2.0 );
+                }
+    
+                vec3 FSchlick(float lDoth) {
+                    return (cspec + (vec3(1.0)-cspec)*pow(1.0 - lDoth,5.0));
+                }
+    
+                float DGGX(float nDoth, float alpha) {
+                    float alpha2 = alpha*alpha;
+                    float d = nDoth*nDoth*(alpha2-1.0)+1.0;
+                    return (  alpha2 / (PI*d*d));
+                }
+    
+                float G1(float dotProduct, float k) {
+                    return (dotProduct / (dotProduct*(1.0-k) + k) );
+                }
+    
+                float GSmith(float nDotv, float nDotl) {
+                    float k = roughness*roughness;
+                    return G1(nDotl,k)*G1(nDotv,k);
+                }
+    
+                vec3 perturbNormal2Arb( vec3 eye_pos, vec3 surf_norm ) {
+                    vec3 q0 = dFdx( eye_pos.xyz );
+                    vec3 q1 = dFdy( eye_pos.xyz );
+                    vec2 st0 = dFdx( vUv.st );
+                    vec2 st1 = dFdy( vUv.st );
+                    st0.xy += 0.0000001; // risolve ogni problema
+    
+    
+                    vec3 S = normalize(  q0 * st1.t - q1 * st0.t );
+                    vec3 T = normalize( -q0 * st1.s + q1 * st0.s );
+                    vec3 N =  surf_norm ;
+    
+                    vec3 mapN = normalize(texture2D( normalMap, vUv ).xyz * 2.0 - 1.0);
+                    mapN.xy = normalScale * mapN.xy;
+                    mat3 tsn = mat3( S, T, N );
+                    return normalize( tsn * mapN );
+                }
+    
+                vec3 inverseTransformDirection( in vec3 dir, in mat4 matrix ) {
+                    return normalize( ( vec4( dir, 0.0 ) * matrix ).xyz );
+                }
+    
+                vec3 BRDF_Specular_GGX_Environment( vec3 normal, vec3 viewDir, const in vec3 cspec, const in float roughness ) {
+                    float dotNV = saturate( dot( normal, viewDir ) );
+                    const vec4 c0 = vec4( - 1, - 0.0275, - 0.572, 0.022 );
+                    const vec4 c1 = vec4( 1, 0.0425, 1.04, - 0.04 );
+                    vec4 r = roughness * c0 + c1;
+                    float a004 = min( r.x * r.x, exp2( - 9.28 * dotNV ) ) * r.x + r.y;
+                    vec2 AB = vec2( -1.04, 1.04 ) * a004 + r.zw;
+                    return cspec * AB.x + AB.y;
+                }
+    
+                void main() {
+    
+                    vec4 lPosition = viewMatrix * vec4( pointLightPosition, 1.0 );
+                    vec4 lPosition2 = viewMatrix * vec4( pointLightPosition2, 1.0 );
+                    vec4 lPosition3 = viewMatrix * vec4( pointLightPosition3, 1.0 );
+    
+                    vec3 l = normalize(lPosition.xyz - vPosition.xyz);
+                    vec3 l2 = normalize(vPosition.xyz - lPosition2.xyz);
+                    vec3 l3 = normalize( vPosition.xyz - lPosition3.xyz);
+    
+                    //OBJ MODEL
+                    //TO MAKE NORMAL MAP WORK perturbNormal2Arb(...)
+                    vec3 n = perturbNormal2Arb( vPosition, normalize( vNormal ));
+                    vec3 worldN = inverseTransformDirection( n, viewMatrix );
+                    vec3 v = normalize( -vPosition);
+                    vec3 vReflect = reflect(vPosition, n);
+                    vec3 r = inverseTransformDirection(vReflect, viewMatrix);
+    
+                    vec3 h = normalize( v + l);
+                    vec3 h2 = normalize( v + l2);
+                    vec3 h3 = normalize( v + l3);
+    
+                    float nDotl = max(dot( n, l ),0.000001);
+                    float nDotl2 = max(dot( n, l2 ),0.000001);
+                    float nDotl3 = max(dot( n, l3 ),0.000001);
+    
+                    float lDoth = max(dot( l, h ),0.000001);
+                    float lDoth2 = max(dot( l2, h2 ),0.000001);
+                    float lDoth3 = max(dot( l3, h3 ),0.000001);
+    
+                    float nDoth = max(dot( n, h ),0.000001);
+                    float nDoth2 = max(dot( n, h2 ),0.000001);
+                    float nDoth3 = max(dot( n, h3 ),0.000001);
+    
+                    float vDoth = max(dot( v, h ),0.000001);
+                    float vDoth2 = max(dot( v, h2 ),0.000001);
+                    float vDoth3 = max(dot( v, h3 ),0.000001);
+    
+                    float nDotv = max(dot( n, v ),0.000001);
+    
+                    cdiff = texture2D( diffuseMap, vUv*textureRepeat ).rgb;
+                    cdiff = pow( cdiff, vec3(2.2));
+                    roughness = texture2D(roughnessMap, vUv*textureRepeat).r;
+    
+                     vec3 irradiance = textureCube( irradianceMap, worldN ).rgb;
+                    irradiance = pow( irradiance, vec3(2.2));
+    
+                    vec3 fresnel = FSchlick( lDoth );
+                    vec3 fresnel2 = FSchlick( lDoth2 );
+                    vec3 fresnel3 = FSchlick( lDoth3 );
+    
+                    vec3 BRDF = (vec3(1.0)-fresnel)*cdiff/PI + fresnel*GSmith(nDotv,nDotl)*DGGX(nDoth,roughness*roughness)/(4.0*nDotl*nDotv);
+                    vec3 BRDF2 = (vec3(1.0)-fresnel2)*cdiff/PI + fresnel2*GSmith(nDotv,nDotl2)*DGGX(nDoth2,roughness*roughness)/(4.0*nDotl2*nDotv);
+                    vec3 BRDF3 = (vec3(1.0)-fresnel3)*cdiff/PI + fresnel3*GSmith(nDotv,nDotl3)*DGGX(nDoth3,roughness*roughness)/(4.0*nDotl3*nDotv);
+    
+                    vec3 outRadiance = ambientLight+ ( (BRDF*nDotl*clight)+(BRDF2*nDotl2*clight2) + (nDotl3*BRDF3*clight3) ) *PI + (irradiance*cdiff/PI);
+    
+                    gl_FragColor = vec4(pow( outRadiance, vec3(1.0/2.2)), 1.0);
+    
+                }
+            </script>
 
-		void main() {
-			vec4 vPos = modelViewMatrix * vec4( position, 1.0 );
-			vPosition = vPos.xyz;
-			vNormal = normalMatrix * normal;
-			uVv = uv;
-			gl_Position = projectionMatrix * vPos;
-		}
-		</script>
+    <script type='text/x-glsl' id='fs_plastic'>
+                precision highp float;
+                precision highp int;
+    
+                varying vec3 vPosition;
+                varying vec3 wPosition;
+                varying vec3 vNormal;
+                varying vec3 wNormal;
+                varying vec2 vUv;
+    
+                uniform vec3 pointLightPosition;
+                uniform vec3 pointLightPosition2;
+                uniform vec3 pointLightPosition3;
+                
+                uniform vec3 ambientLight;
+    
+                uniform vec3 clight;
+                uniform vec3 clight2;
+                uniform vec3 clight3;
+                uniform samplerCube envMap;
+    
+                uniform vec3 cdiff;
+                uniform vec3 cspec;
+                uniform float roughness;
+    
+                uniform sampler2D normalMap;
+                uniform vec2 normalScale;
+    
+                uniform samplerCube irradianceMap;
+    
+                uniform vec2 textureRepeat;
+                const float PI = 3.14159;
+    
+                #define saturate(a) clamp( a, 0.0, 1.0 )
+    
+                float pow2( const in float x ) { return x*x; }
+    
+                float getSpecularMIPLevel( const in float blinnShininessExponent, const in int maxMIPLevel ) {
+                    float maxMIPLevelScalar = float( maxMIPLevel );
+                    float desiredMIPLevel = maxMIPLevelScalar - 0.79248 - 0.5 * log2( pow2( blinnShininessExponent ) + 1.0 );
+                    return clamp( desiredMIPLevel, 0.0, maxMIPLevelScalar );
+                }
+    
+                float GGXRoughnessToBlinnExponent( const in float ggxRoughness ) {
+                    return ( 2.0 / pow2( ggxRoughness + 0.0001 ) - 2.0 );
+                }
+    
+                vec3 FSchlick(float lDoth) {
+                    return (cspec + (vec3(1.0)-cspec)*pow(1.0 - lDoth,5.0));
+                }
+    
+                float DGGX(float nDoth, float alpha) {
+                    float alpha2 = alpha*alpha;
+                    float d = nDoth*nDoth*(alpha2-1.0)+1.0;
+                    return (  alpha2 / (PI*d*d));
+                }
+    
+                float G1(float dotProduct, float k) {
+                    return (dotProduct / (dotProduct*(1.0-k) + k) );
+                }
+    
+                float GSmith(float nDotv, float nDotl) {
+                    float k = roughness*roughness;
+                    return G1(nDotl,k)*G1(nDotv,k);
+                }
+    
+                vec3 perturbNormal2Arb( vec3 eye_pos, vec3 surf_norm ) {
+                    vec3 q0 = dFdx( eye_pos.xyz );
+                    vec3 q1 = dFdy( eye_pos.xyz );
+                    vec2 st0 = dFdx( vUv.st );
+                    vec2 st1 = dFdy( vUv.st );
+                    st0.xy += 0.0000001; // risolve ogni problema
+    
+    
+                    vec3 S = normalize(  q0 * st1.t - q1 * st0.t );
+                    vec3 T = normalize( -q0 * st1.s + q1 * st0.s );
+                    vec3 N =  surf_norm ;
+    
+                    vec3 mapN = normalize(texture2D( normalMap, vUv ).xyz * 2.0 - 1.0);
+                    mapN.xy = normalScale * mapN.xy;
+                    mat3 tsn = mat3( S, T, N );
+                    return normalize( tsn * mapN );
+                }
+    
+                vec3 inverseTransformDirection( in vec3 dir, in mat4 matrix ) {
+                    return normalize( ( vec4( dir, 0.0 ) * matrix ).xyz );
+                }
+    
+                vec3 BRDF_Specular_GGX_Environment( vec3 normal, vec3 viewDir, const in vec3 cspec, const in float roughness ) {
+                    float dotNV = saturate( dot( normal, viewDir ) );
+                    const vec4 c0 = vec4( - 1, - 0.0275, - 0.572, 0.022 );
+                    const vec4 c1 = vec4( 1, 0.0425, 1.04, - 0.04 );
+                    vec4 r = roughness * c0 + c1;
+                    float a004 = min( r.x * r.x, exp2( - 9.28 * dotNV ) ) * r.x + r.y;
+                    vec2 AB = vec2( -1.04, 1.04 ) * a004 + r.zw;
+                    return cspec * AB.x + AB.y;
+                }
+    
+                void main() {
+    
+                    vec4 lPosition = viewMatrix * vec4( pointLightPosition, 1.0 );
+                    vec4 lPosition2 = viewMatrix * vec4( pointLightPosition2, 1.0 );
+                    vec4 lPosition3 = viewMatrix * vec4( pointLightPosition3, 1.0 );
+    
+                    vec3 l = normalize(lPosition.xyz - vPosition.xyz);
+                    vec3 l2 = normalize(vPosition.xyz - lPosition2.xyz);
+                    vec3 l3 = normalize( vPosition.xyz - lPosition3.xyz);
+    
+                    //OBJ MODEL
+                    //TO MAKE NORMAL MAP WORK perturbNormal2Arb(...)
+                    vec3 n = perturbNormal2Arb( vPosition, normalize( vNormal ));
+                    vec3 worldN = inverseTransformDirection( n, viewMatrix );
+                    vec3 v = normalize( -vPosition);
+                    vec3 vReflect = reflect(vPosition, n);
+                    vec3 r = inverseTransformDirection(vReflect, viewMatrix);
+    
+                    vec3 h = normalize( v + l);
+                    vec3 h2 = normalize( v + l2);
+                    vec3 h3 = normalize( v + l3);
+    
+                    float nDotl = max(dot( n, l ),0.000001);
+                    float nDotl2 = max(dot( n, l2 ),0.000001);
+                    float nDotl3 = max(dot( n, l3 ),0.000001);
+    
+                    float lDoth = max(dot( l, h ),0.000001);
+                    float lDoth2 = max(dot( l2, h2 ),0.000001);
+                    float lDoth3 = max(dot( l3, h3 ),0.000001);
+    
+                    float nDoth = max(dot( n, h ),0.000001);
+                    float nDoth2 = max(dot( n, h2 ),0.000001);
+                    float nDoth3 = max(dot( n, h3 ),0.000001);
+    
+                    float vDoth = max(dot( v, h ),0.000001);
+                    float vDoth2 = max(dot( v, h2 ),0.000001);
+                    float vDoth3 = max(dot( v, h3 ),0.000001);
+    
+                    float nDotv = max(dot( n, v ),0.000001);
+    
+                    vec3 fresnel = FSchlick( lDoth );
+                    vec3 fresnel2 = FSchlick( lDoth2 );
+                    vec3 fresnel3 = FSchlick( lDoth3 );
+    
+                    vec3 BRDF = (vec3(1.0)-fresnel)*cdiff/PI + fresnel*GSmith(nDotv,nDotl)*DGGX(nDoth,roughness*roughness)/(4.0*nDotl*nDotv);
+                    vec3 BRDF2 = (vec3(1.0)-fresnel2)*cdiff/PI + fresnel2*GSmith(nDotv,nDotl2)*DGGX(nDoth2,roughness*roughness)/(4.0*nDotl2*nDotv);
+                    vec3 BRDF3 = (vec3(1.0)-fresnel3)*cdiff/PI + fresnel3*GSmith(nDotv,nDotl3)*DGGX(nDoth3,roughness*roughness)/(4.0*nDotl3*nDotv);
+    
+                    float blinnShininessExponent = GGXRoughnessToBlinnExponent(roughness);
+                    float specularMIPLevel = getSpecularMIPLevel(blinnShininessExponent,8 );
+    
+                     vec3 envLight = textureCubeLodEXT( envMap, vec3(-r.x, r.yz), specularMIPLevel ).rgb;
+                    envLight = pow( envLight, vec3(2.2));
+                    
+    
+                    vec3 irradiance = textureCube( irradianceMap, worldN).rgb;
+                    irradiance = pow( irradiance, vec3(2.2));
+    
+                    vec3 sBRDF = BRDF_Specular_GGX_Environment(n, v, cspec, roughness);
+    
+                    vec3 outRadiance = (BRDF*nDotl*clight + BRDF2*nDotl2*clight2 + BRDF3*clight3*nDotl3) * PI + (irradiance*cdiff/PI) + ambientLight;
+    
+                    gl_FragColor = vec4(pow( outRadiance, vec3(1.0/2.2)), 1.0);
+                }
+            </script>
 
-    <script type="text/x-glsl" id="fragment-texture">
-			varying vec3 vNormal;
-			varying vec3 vPosition;
-			varying vec2 uVv;
-			uniform vec3 pointLightPosition; // in world space
-            uniform vec3 clight;
-            uniform vec3 ambientLight;
-            
-			uniform sampler2D specularMap;
-			uniform sampler2D diffuseMap;
-			uniform sampler2D roughnessMap;
-			uniform vec2 textureRepeat;
-			const float PI = 3.14159;
+    <script type='text/x-glsl' id='vs'>
+                attribute vec4 tangent;
+                varying vec3 vNormal;
+                varying vec3 vPosition;
+                varying vec3 wPosition;
+                varying vec3 vTangent;
+                varying vec3 vBitangent;
+                varying vec2 vUv;
+                varying vec3 wNormal;
+                
+                void main() {
+                    vec4 vPos = modelViewMatrix * vec4( position, 1.0 );
+                    vPosition = vPos.xyz;
+                    wPosition = (modelMatrix * vec4( position, 1.0 )).xyz;
+                    vNormal = normalize(normalMatrix * normal);
+                    vec3 objectTangent = vec3( tangent.xyz );
+                    vec3 transformedTangent = normalMatrix * objectTangent;
+                    vTangent = normalize( transformedTangent );
+                    vBitangent = normalize( cross( vNormal, vTangent ) * tangent.w );
+                    vUv = uv;
+                    wNormal = (modelViewMatrix * vec4(vNormal, 0.0)).xyz;
+                    gl_Position = projectionMatrix * vPos;
+                }
+            </script>
 
-			vec3 cdiff;
-			vec3 cspec;
-			float roughness;
-
-			vec3 FSchlick(float vDoth, vec3 f0) {
-				return f0 + (vec3(1.0)-f0)*pow(1.0 - vDoth,5.0);
-			}
-
-			float DGGX(float NoH, float alpha) {
-				float alpha2 = alpha * alpha;
-				float k = NoH*NoH * (alpha2 - 1.0) + 1.0;
-    			return alpha2 / (PI * k * k );
-			}
-
-			float G1(float nDotv, float alpha) {
-				float alpha2 = alpha*alpha;
-				return 2.0 * (nDotv / (nDotv + sqrt(alpha2 + (1.0-alpha2)*nDotv*nDotv )));
-			}
-
-			float GSmith(float nDotv, float nDotl, float alpha) {
-				return G1(nDotl,alpha)*G1(nDotv,alpha);
-			}
-
-			void main() {
-				vec4 lPosition = viewMatrix * vec4( pointLightPosition, 1.0 );
-				vec3 l = normalize(lPosition.xyz - vPosition.xyz);
-				vec3 n = normalize( vNormal );  // interpolation destroys normalization, so we have to normalize
-				vec3 v = normalize( -vPosition);
-				vec3 h = normalize( v + l);
-				// small quantity to prevent divisions by 0
-				float nDotl = max(dot( n, l ),0.000001);
-				float lDoth = max(dot( l, h ),0.000001);
-				float nDoth = max(dot( n, h ),0.000001);
-				float vDoth = max(dot( v, h ),0.000001);
-				float nDotv = max(dot( n, v ),0.000001);
-
-				cdiff = texture2D( diffuseMap, uVv*textureRepeat ).rgb;
-				// texture in sRGB, linearize
-				cdiff = pow( cdiff, vec3(2.2));
-				cspec = texture2D( specularMap, uVv*textureRepeat ).rgb;
-				// texture in sRGB, linearize
-				cspec = pow( cspec, vec3(2.2));
-				roughness = texture2D( roughnessMap, uVv*textureRepeat).r; // no need to linearize roughness map
-				vec3 fresnel = FSchlick(vDoth, cspec);
-				float alpha = roughness * roughness;
-				vec3 BRDF = (vec3(1.0)-fresnel)*cdiff/PI + fresnel*GSmith(nDotv,nDotl, alpha)*DGGX(nDoth,alpha)/
-					(4.0*nDotl*nDotv);
-				vec3 outRadiance = PI* clight * nDotl * BRDF + ambientLight;
-				// gamma encode the final value
-				gl_FragColor = vec4(pow( outRadiance, vec3(1.0/2.2)), 1.0);
-			}
-		</script>
     <!--start MENU-->
     <div id="menu_container" class="unselectable">
         <div id="main_menu">
