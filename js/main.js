@@ -95,7 +95,7 @@ function Start() {
     plane.rotation.x = Math.PI / 2;
 
 
-    world.add(plane);
+    // world.add(plane);
     scene.add(world);
     // scene.background = envMap;
     scene.environment = envMap;
