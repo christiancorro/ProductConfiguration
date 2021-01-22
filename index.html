@@ -238,7 +238,7 @@
                 uniform vec3 pointLightPosition2;
                 uniform vec3 pointLightPosition3;
                 
-			uniform vec3 ambientLight;
+		        uniform vec3 ambientLight;
     
                 uniform vec3 clight;
                 uniform vec3 clight2;
@@ -493,7 +493,7 @@
                     vec4 lPosition3 = viewMatrix * vec4( pointLightPosition3, 1.0 );
     
                     vec3 l = normalize(lPosition.xyz - vPosition.xyz);
-                    vec3 l2 = normalize(lPosition2.xyz - vPosition.xyz );
+                    vec3 l2 = normalize(lPosition2.xyz - vPosition.xyz);
                     vec3 l3 = normalize( vPosition.xyz - lPosition3.xyz);
     
                     //OBJ MODEL

@@ -51,12 +51,18 @@ const DEFAULT_CAMERA_POSITION_X = 0,
 
 let clock;
 
-let uniforms = {
-    "time": { value: 1.0 }
+let materialExtensions = {
+    derivatives: true,
+    shaderTextureLOD: true // set to use shader texture LOD
 };
 
-
 let mats = [];
+let cl, cl2, cl3;
+let lightParameters, lightParameters2, lightParameters3, ambientLightParameters;
+
+let uniformsPsychedelic = {
+    "time": { value: 0 }
+}
 
 function Start() {
 
@@ -95,15 +101,8 @@ function Start() {
     // scene.background = envMap;
     scene.environment = envMap;
 
-
-    let plastic_red = new THREE.MeshBasicMaterial({ color: 0xFF0000 });
-    plastic_red.name = "Red plastic";
-
-    let plastic_black = new THREE.MeshBasicMaterial({ color: 0x000000 });
-    plastic_black.name = "Black plastic";
-
     let materialPsychedelic = new THREE.ShaderMaterial({
-        uniforms: uniforms,
+        uniforms: uniformsPsychedelic,
         vertexShader: document.getElementById('vertex_psychedelic').textContent,
         fragmentShader: document.getElementById('fragment_psychedelic').textContent
 
@@ -111,11 +110,11 @@ function Start() {
     materialPsychedelic.name = "Psychedelic";
 
     // let normalMap = loadTexture("textures/materials/wood/wood_normal.jpg");
-    let diffuseMap = loadTexture("textures/materials/wood/wood_col.jpg");
-    let roughnessMap = loadTexture("textures/materials/wood/wood_rough.jpg");
+    let diffuseMapWood = loadTexture("textures/materials/wood/wood_col.jpg");
+    let roughnessMapWood = loadTexture("textures/materials/wood/wood_rough.jpg");
     let roughnessMapPlastic = loadTexture("textures/materials/plastic/Plastic006_1K_Roughness.jpg");
     let roughnessMapMetal = loadTexture("textures/materials/metal/Metal032_1K_Roughness.jpg");
-    let normalMap = loadTexture("textures/materials/wood/wood_normal.jpg");
+    let normalMapWood = loadTexture("textures/materials/wood/wood_normal.jpg");
     let normalMapMetal = loadTexture("textures/materials/metal/Metal032_1K_Normal.jpg");
     let normalMapPlastic = loadTexture("textures/materials/plastic/Plastic006_1K_Normal.jpg");
 
@@ -123,10 +122,7 @@ function Start() {
     // let specularMapBronzo = loadTexture(".jpg");
     // let roughnessMapBronzo = loadTexture("textures/materials/bronzo_rgh.jpg");
 
-    let materialExtensions = {
-        derivatives: true,
-        shaderTextureLOD: true // set to use shader texture LOD
-    };
+
 
     let cspec_gold = {
         red: 1.022,
@@ -153,9 +149,15 @@ function Start() {
     };
 
     let cdiff_plastic_black = {
-        red: 0.2,
-        green: 0.2,
-        blue: 0.2
+        red: 0,
+        green: 0,
+        blue: 0
+    };
+
+    let cdiff_plastic_red = {
+        red: 1,
+        green: 0.001,
+        blue: 0.001
     };
 
     let cdiff_plastic_old_white = {
@@ -165,42 +167,42 @@ function Start() {
     };
 
     // lights params
-    var lightParameters = {
+    lightParameters = {
         red: 1.0,
         green: 1.0,
         blue: 0.8,
-        intensity: 1,
+        intensity: 1.2,
     };
-    var lightParameters2 = {
+    lightParameters2 = {
         red: 1,
         green: 1.0,
         blue: 0.9,
-        intensity: 0.4,
+        intensity: 0.35,
     };
-    var lightParameters3 = {
+    lightParameters3 = {
         red: 1.0,
         green: 1.0,
         blue: 0.8,
-        intensity: 1.4,
+        intensity: 1.6,
     };
 
-    let cl = new THREE.Vector3(
+    cl = new THREE.Vector3(
         lightParameters.red * lightParameters.intensity,
         lightParameters.green * lightParameters.intensity,
         lightParameters.blue * lightParameters.intensity
     );
-    let cl2 = new THREE.Vector3(
+    cl2 = new THREE.Vector3(
         lightParameters2.red * lightParameters2.intensity,
         lightParameters2.green * lightParameters2.intensity,
         lightParameters2.blue * lightParameters2.intensity
     );
-    let cl3 = new THREE.Vector3(
+    cl3 = new THREE.Vector3(
         lightParameters3.red * lightParameters3.intensity,
         lightParameters3.green * lightParameters3.intensity,
         lightParameters3.blue * lightParameters3.intensity
     );
 
-    var ambientLightParameters = {
+    ambientLightParameters = {
         red: 0.2,
         green: 0.2,
         blue: 0.15,
@@ -225,230 +227,22 @@ function Start() {
     // scene.add(lightMesh3);
 
 
-    let uniform_wood = {
-        diffuseMap: { type: "t", value: diffuseMap },
-        roughnessMap: { type: "t", value: roughnessMap },
-        cspec: { type: "v3", value: new THREE.Vector3(0.04, 0.04, 0.04) },
-        cdiff: { type: "v3", value: new THREE.Vector3(0.5, 0.5, 0.5) },
-        normalMap: { type: "t", value: normalMap },
-        normalScale: { type: "v2", value: new THREE.Vector2(1, 1) },
-        irradianceMap: { type: "t", value: irradianceMap },
-        textureRepeat: { type: "v2", value: new THREE.Vector2(1, 1) },
-        envMap: { type: "t", value: envMap },
+    let wood = createMaterialTexture("Wood", diffuseMapWood, roughnessMapWood, normalMapWood, 1, 1);
 
-        pointLightPosition: { type: "v3", value: new THREE.Vector3() },
-        pointLightPosition2: { type: "v3", value: new THREE.Vector3() },
-        pointLightPosition3: { type: "v3", value: new THREE.Vector3() },
-        ambientLight: { type: "v3", value: new THREE.Vector3() },
-        clight: { type: 'v3', value: cl },
-        clight2: { type: 'v3', value: cl2 },
-        clight3: { type: 'v3', value: cl3 }
-    };
+    let silver = createMaterialMetal("Silver", cspec_silver, 0.1, normalMapMetal, 0.1);
+    let copper = createMaterialMetal("Copper", cspec_copper, 0.1, normalMapMetal, 1);
+    let gold = createMaterialMetal("Gold", cspec_gold, 0.1, normalMapMetal, 0.2);
 
-    let wood = new THREE.ShaderMaterial({
-        uniforms: uniform_wood,
-        vertexShader: document.getElementById('vs').textContent,
-        fragmentShader: document.getElementById('fs_texture').textContent,
-        extensions: materialExtensions
-    });
+    let plastic_white = createMaterialPlastic("White plastic", cdiff_plastic_white, 0.5, normalMapPlastic, 3);
 
-    wood.name = "Wood";
+    let plastic_red = createMaterialPlastic("Red plastic", cdiff_plastic_red, 0.5, normalMapPlastic, 4);
 
-    uniform_wood.pointLightPosition.value = new THREE.Vector3(lightMesh.position.x,
-        lightMesh.position.y,
-        lightMesh.position.z);
-
-    uniform_wood.pointLightPosition2.value = new THREE.Vector3(lightMesh2.position.x,
-        lightMesh.position.y,
-        lightMesh.position.z);
-
-    uniform_wood.pointLightPosition3.value = new THREE.Vector3(lightMesh3.position.x,
-        lightMesh.position.y,
-        lightMesh.position.z);
-
-    uniform_wood.clight.value = new THREE.Vector3(
-        lightParameters.red * lightParameters.intensity,
-        lightParameters.green * lightParameters.intensity,
-        lightParameters.blue * lightParameters.intensity);
-
-    uniform_wood.ambientLight.value = new THREE.Vector3(
-        ambientLightParameters.red * ambientLightParameters.intensity,
-        ambientLightParameters.green * ambientLightParameters.intensity,
-        ambientLightParameters.blue * ambientLightParameters.intensity);
-
-
-
-    let uniformsGold = {
-        cspec: { type: "v3", value: new THREE.Vector3(0.8, 0.8, 0.8) },
-        roughness: { type: "f", value: 0.1 },
-        normalMap: { type: "t", value: normalMapMetal },
-        normalScale: { type: "v2", value: new THREE.Vector2(0.1, 0.1) },
-        envMap: { type: "t", value: envMap },
-
-        pointLightPosition: { type: "v3", value: new THREE.Vector3() },
-        pointLightPosition2: { type: "v3", value: new THREE.Vector3() },
-        pointLightPosition3: { type: "v3", value: new THREE.Vector3() },
-        clight: { type: 'v3', value: cl },
-        clight2: { type: 'v3', value: cl2 },
-        clight3: { type: 'v3', value: cl3 }
-    };
-
-    uniformsGold.pointLightPosition.value = new THREE.Vector3(
-        lightMesh.position.x,
-        lightMesh.position.y,
-        lightMesh.position.z);
-
-
-    uniformsGold.cspec.value = new THREE.Vector3(
-        cspec_gold.red,
-        cspec_gold.green,
-        cspec_gold.blue
-    );
-
-    let uniformsSilver = {
-        cspec: { type: "v3", value: new THREE.Vector3(0.8, 0.8, 0.8) },
-        roughness: { type: "f", value: 0.1 },
-        normalMap: { type: "t", value: normalMapMetal },
-        normalScale: { type: "v2", value: new THREE.Vector2(0.2, 0.2) },
-        envMap: { type: "t", value: envMap },
-
-        pointLightPosition: { type: "v3", value: new THREE.Vector3() },
-        pointLightPosition2: { type: "v3", value: new THREE.Vector3() },
-        pointLightPosition3: { type: "v3", value: new THREE.Vector3() },
-        clight: { type: 'v3', value: cl },
-        clight2: { type: 'v3', value: cl2 },
-        clight3: { type: 'v3', value: cl3 }
-    };
-
-
-    uniformsSilver.pointLightPosition.value = new THREE.Vector3(
-        lightMesh.position.x,
-        lightMesh.position.y,
-        lightMesh.position.z);
-
-
-    uniformsSilver.cspec.value = new THREE.Vector3(
-        cspec_silver.red,
-        cspec_silver.green,
-        cspec_silver.blue
-    );
-
-    let uniformsCopper = {
-        cspec: { type: "v3", value: new THREE.Vector3(0.8, 0.8, 0.8) },
-        roughness: { type: "f", value: 0.1 },
-        normalMap: { type: "t", value: normalMapMetal },
-        normalScale: { type: "v2", value: new THREE.Vector2(1, 1) },
-        envMap: { type: "t", value: envMap },
-
-        pointLightPosition: { type: "v3", value: new THREE.Vector3() },
-        pointLightPosition2: { type: "v3", value: new THREE.Vector3() },
-        pointLightPosition3: { type: "v3", value: new THREE.Vector3() },
-        clight: { type: 'v3', value: cl },
-        clight2: { type: 'v3', value: cl2 },
-        clight3: { type: 'v3', value: cl3 }
-    };
-
-
-    uniformsCopper.pointLightPosition.value = new THREE.Vector3(
-        lightMesh.position.x,
-        lightMesh.position.y,
-        lightMesh.position.z);
-
-
-    uniformsCopper.cspec.value = new THREE.Vector3(
-        cspec_copper.red,
-        cspec_copper.green,
-        cspec_copper.blue
-    );
-
-    let gold = new THREE.ShaderMaterial({
-        uniforms: uniformsGold,
-        vertexShader: document.getElementById('vs').textContent,
-        fragmentShader: document.getElementById('fs_metal').textContent,
-        extensions: materialExtensions
-    });
-
-    gold.name = "Gold";
-
-    let silver = new THREE.ShaderMaterial({
-        uniforms: uniformsSilver,
-        vertexShader: document.getElementById('vs').textContent,
-        fragmentShader: document.getElementById('fs_metal').textContent,
-        extensions: materialExtensions
-    });
-
-    silver.name = "Silver";
-
-    let copper = new THREE.ShaderMaterial({
-        uniforms: uniformsCopper,
-        vertexShader: document.getElementById('vs').textContent,
-        fragmentShader: document.getElementById('fs_metal').textContent,
-        extensions: materialExtensions
-    });
-
-    copper.name = "Copper";
-
-    let uniformsPlastic = {
-        roughnessMap: { type: "t", value: roughnessMapPlastic },
-        cspec: { type: "v3", value: new THREE.Vector3(0.04, 0.04, 0.04) },
-        cdiff: { type: "v3", value: new THREE.Vector3(0.5, 0.5, 0.5) },
-        normalMap: { type: "t", value: normalMapPlastic },
-        normalScale: { type: "v2", value: new THREE.Vector2(2, 2) },
-        irradianceMap: { type: "t", value: irradianceMap },
-        envMap: { type: "t", value: envMap },
-
-        pointLightPosition: { type: "v3", value: new THREE.Vector3() },
-        pointLightPosition2: { type: "v3", value: new THREE.Vector3() },
-        pointLightPosition3: { type: "v3", value: new THREE.Vector3() },
-        ambientLight: { type: "v3", value: new THREE.Vector3() },
-        clight: { type: 'v3', value: cl },
-        clight2: { type: 'v3', value: cl2 },
-        clight3: { type: 'v3', value: cl3 }
-    };
-
-    uniformsPlastic.cdiff.value = new THREE.Vector3(
-        cdiff_plastic_white.red,
-        cdiff_plastic_white.green,
-        cdiff_plastic_white.blue
-    );
-
-    uniformsPlastic.ambientLight.value = new THREE.Vector3(
-        ambientLightParameters.red * ambientLightParameters.intensity,
-        ambientLightParameters.green * ambientLightParameters.intensity,
-        ambientLightParameters.blue * ambientLightParameters.intensity);
-
-    uniformsPlastic.pointLightPosition.value = new THREE.Vector3(lightMesh.position.x,
-        lightMesh.position.y,
-        lightMesh.position.z);
-
-    uniformsPlastic.pointLightPosition2.value = new THREE.Vector3(lightMesh2.position.x,
-        lightMesh.position.y,
-        lightMesh.position.z);
-
-    uniformsPlastic.pointLightPosition3.value = new THREE.Vector3(lightMesh3.position.x,
-        lightMesh.position.y,
-        lightMesh.position.z);
-
-
-
-    let white_plastic = new THREE.ShaderMaterial({
-        uniforms: uniformsPlastic,
-        vertexShader: document.getElementById('vs').textContent,
-        fragmentShader: document.getElementById('fs_plastic').textContent,
-        extensions: materialExtensions
-    });
-
-    white_plastic.name = "White plastic";
+    let plastic_black = createMaterialPlastic("Black plastic", cdiff_plastic_black, 0.5, normalMapPlastic, 4);
 
 
     mats.push(plastic_red);
-    mats.push(white_plastic);
     mats.push(plastic_black);
     mats.push(wireMaterial);
-    mats.push(wood);
-    mats.push(gold);
-    mats.push(silver);
-    mats.push(copper);
     mats.push(materialPsychedelic);
 
 
@@ -459,7 +253,7 @@ function Start() {
         },
         "logo": {
             "defaultMaterial": plastic_black,
-            "availableMaterials": [gold, wood, white_plastic, plastic_red, plastic_black, wireMaterial]
+            "availableMaterials": [gold, wood, plastic_white, plastic_red, plastic_black, wireMaterial]
         },
         "neck": {
             "defaultMaterial": gold,
@@ -467,35 +261,35 @@ function Start() {
         },
         "strings": {
             "defaultMaterial": gold,
-            "availableMaterials": [gold, materialPsychedelic, white_plastic, plastic_red, wireMaterial]
+            "availableMaterials": [gold, materialPsychedelic, plastic_white, plastic_red, wireMaterial]
         },
         "frets": {
             "defaultMaterial": gold,
-            "availableMaterials": [gold, wood, plastic_red, white_plastic, plastic_black, materialPsychedelic, wireMaterial]
+            "availableMaterials": [gold, wood, plastic_red, plastic_white, plastic_black, materialPsychedelic, wireMaterial]
         },
         "fret-markers": {
-            "defaultMaterial": white_plastic,
-            "availableMaterials": [gold, wood, plastic_red, white_plastic, plastic_black, wireMaterial]
+            "defaultMaterial": plastic_white,
+            "availableMaterials": [gold, wood, plastic_red, plastic_white, plastic_black, wireMaterial]
         },
         "body": {
             "defaultMaterial": wood,
-            "availableMaterials": [wood, gold, silver, copper, materialPsychedelic, plastic_red, white_plastic, plastic_black, wireMaterial]
+            "availableMaterials": [wood, gold, silver, copper, materialPsychedelic, plastic_red, plastic_white, plastic_black, wireMaterial]
         },
         "pickguard": {
             "defaultMaterial": silver,
-            "availableMaterials": [gold, silver, copper, wood, materialPsychedelic, plastic_red, plastic_black, wireMaterial, white_plastic]
+            "availableMaterials": [gold, silver, copper, wood, materialPsychedelic, plastic_red, plastic_black, wireMaterial, plastic_white]
         },
         "metals": {
             "defaultMaterial": gold,
-            "availableMaterials": [gold, wood, white_plastic, plastic_red, plastic_black, wireMaterial, materialPsychedelic]
+            "availableMaterials": [gold, wood, plastic_white, plastic_red, plastic_black, wireMaterial, materialPsychedelic]
         },
         "plastics": {
-            "defaultMaterial": white_plastic,
-            "availableMaterials": [gold, materialPsychedelic, white_plastic, plastic_red, plastic_black, wireMaterial]
+            "defaultMaterial": plastic_white,
+            "availableMaterials": [gold, materialPsychedelic, plastic_white, plastic_red, plastic_black, wireMaterial]
         },
         "knobs-text": {
-            "defaultMaterial": white_plastic,
-            "availableMaterials": [wood, materialPsychedelic, plastic_red, wireMaterial, white_plastic, plastic_black]
+            "defaultMaterial": plastic_white,
+            "availableMaterials": [wood, materialPsychedelic, plastic_red, wireMaterial, plastic_white, plastic_black]
         }
     }
 
@@ -544,6 +338,169 @@ function Start() {
 
 }
 
+function createMaterialMetal(name, cspec, roughness, normalMap, normalScale) {
+    let uniforms = {
+        cspec: { type: "v3", value: new THREE.Vector3(0.8, 0.8, 0.8) },
+        roughness: { type: "f", value: roughness },
+        normalMap: { type: "t", value: normalMap },
+        normalScale: { type: "v2", value: new THREE.Vector2(normalScale, normalScale) },
+        envMap: { type: "t", value: envMap },
+
+        pointLightPosition: { type: "v3", value: new THREE.Vector3() },
+        pointLightPosition2: { type: "v3", value: new THREE.Vector3() },
+        pointLightPosition3: { type: "v3", value: new THREE.Vector3() },
+        clight: { type: 'v3', value: cl },
+        clight2: { type: 'v3', value: cl2 },
+        clight3: { type: 'v3', value: cl3 }
+    };
+
+    uniforms.cspec.value = new THREE.Vector3(
+        cspec.red,
+        cspec.green,
+        cspec.blue
+    );
+
+    uniforms.pointLightPosition.value = new THREE.Vector3(
+        lightMesh.position.x,
+        lightMesh.position.y,
+        lightMesh.position.z);
+
+    uniforms.pointLightPosition2.value = new THREE.Vector3(
+        lightMesh2.position.x,
+        lightMesh2.position.y,
+        lightMesh2.position.z);
+
+    uniforms.pointLightPosition3.value = new THREE.Vector3(
+        lightMesh3.position.x,
+        lightMesh3.position.y,
+        lightMesh3.position.z);
+
+    let metal = new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: document.getElementById('vs').textContent,
+        fragmentShader: document.getElementById('fs_metal').textContent,
+        extensions: materialExtensions
+    });
+
+    metal.name = name;
+
+    mats.push(metal);
+
+    return metal;
+}
+
+function createMaterialPlastic(name, cdiff, roughness, normalMap, normalScale) {
+
+    let uniforms = {
+        cspec: { type: "v3", value: new THREE.Vector3(0.04, 0.04, 0.04) },
+        cdiff: { type: "v3", value: new THREE.Vector3(0.5, 0.5, 0.5) },
+        normalMap: { type: "t", value: normalMap },
+        normalScale: { type: "v2", value: new THREE.Vector2(normalScale, normalScale) },
+        irradianceMap: { type: "t", value: irradianceMap },
+        envMap: { type: "t", value: envMap },
+        roughness: { type: "f", value: roughness },
+
+        pointLightPosition: { type: "v3", value: new THREE.Vector3() },
+        pointLightPosition2: { type: "v3", value: new THREE.Vector3() },
+        pointLightPosition3: { type: "v3", value: new THREE.Vector3() },
+        ambientLight: { type: "v3", value: new THREE.Vector3() },
+        clight: { type: 'v3', value: cl },
+        clight2: { type: 'v3', value: cl2 },
+        clight3: { type: 'v3', value: cl3 }
+    };
+
+    uniforms.cdiff.value = new THREE.Vector3(
+        cdiff.red,
+        cdiff.green,
+        cdiff.blue
+    );
+
+    uniforms.ambientLight.value = new THREE.Vector3(
+        ambientLightParameters.red * ambientLightParameters.intensity,
+        ambientLightParameters.green * ambientLightParameters.intensity,
+        ambientLightParameters.blue * ambientLightParameters.intensity);
+
+    uniforms.pointLightPosition.value = new THREE.Vector3(lightMesh.position.x,
+        lightMesh.position.y,
+        lightMesh.position.z);
+
+    uniforms.pointLightPosition2.value = new THREE.Vector3(lightMesh2.position.x,
+        lightMesh.position.y,
+        lightMesh.position.z);
+
+    uniforms.pointLightPosition3.value = new THREE.Vector3(lightMesh3.position.x,
+        lightMesh.position.y,
+        lightMesh.position.z);
+
+
+    let plastic = new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: document.getElementById('vs').textContent,
+        fragmentShader: document.getElementById('fs_plastic').textContent,
+        extensions: materialExtensions
+    });
+
+    plastic.name = name;
+
+    mats.push(plastic);
+
+    return plastic;
+}
+
+function createMaterialTexture(name, diffuseMap, roughnessMap, normalMap, normalScale, textureRepeat) {
+    let uniforms = {
+        diffuseMap: { type: "t", value: diffuseMap },
+        roughnessMap: { type: "t", value: roughnessMap },
+        normalMap: { type: "t", value: normalMap },
+        normalScale: { type: "v2", value: new THREE.Vector2(normalScale, normalScale) },
+        irradianceMap: { type: "t", value: irradianceMap },
+        textureRepeat: { type: "v2", value: new THREE.Vector2(textureRepeat, textureRepeat) },
+
+        pointLightPosition: { type: "v3", value: new THREE.Vector3() },
+        pointLightPosition2: { type: "v3", value: new THREE.Vector3() },
+        pointLightPosition3: { type: "v3", value: new THREE.Vector3() },
+        ambientLight: { type: "v3", value: new THREE.Vector3() },
+        clight: { type: 'v3', value: cl },
+        clight2: { type: 'v3', value: cl2 },
+        clight3: { type: 'v3', value: cl3 }
+    };
+
+    let material = new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: document.getElementById('vs').textContent,
+        fragmentShader: document.getElementById('fs_texture').textContent,
+        extensions: materialExtensions
+    });
+
+    uniforms.pointLightPosition.value = new THREE.Vector3(lightMesh.position.x,
+        lightMesh.position.y,
+        lightMesh.position.z);
+
+    uniforms.pointLightPosition2.value = new THREE.Vector3(lightMesh2.position.x,
+        lightMesh.position.y,
+        lightMesh.position.z);
+
+    uniforms.pointLightPosition3.value = new THREE.Vector3(lightMesh3.position.x,
+        lightMesh.position.y,
+        lightMesh.position.z);
+
+    uniforms.clight.value = new THREE.Vector3(
+        lightParameters.red * lightParameters.intensity,
+        lightParameters.green * lightParameters.intensity,
+        lightParameters.blue * lightParameters.intensity);
+
+    uniforms.ambientLight.value = new THREE.Vector3(
+        ambientLightParameters.red * ambientLightParameters.intensity,
+        ambientLightParameters.green * ambientLightParameters.intensity,
+        ambientLightParameters.blue * ambientLightParameters.intensity);
+
+    material.name = name;
+
+    mats.push(material);
+
+    return material;
+}
+
 
 function exportGLTF() {
     let gltfExporter = new THREE.GLTFExporter();
@@ -557,14 +514,14 @@ function exportGLTF() {
         maxTextureSize: 4096
     };
 
-    gltfExporter.parse(world, function (result) {
+    gltfExporter.parse(scene, function (result) {
         if (result instanceof ArrayBuffer) {
-            saveArrayBuffer(result, 'sculpture-' + date.getTime() + '.glb');
+            saveArrayBuffer(result, 'dreamcaster-' + date.getTime() + '.glb');
 
         } else {
             let output = JSON.stringify(result, null, 2);
             //console.log(output);
-            saveString(output, 'sculpture-' + date.getTime() + '.gltf');
+            saveString(output, 'dreamcaster-' + date.getTime() + '.gltf');
         }
     }, options);
 }
@@ -572,8 +529,9 @@ function exportGLTF() {
 function saveString(text, filename) {
     save(new Blob([text], { type: 'text/plain' }), filename);
 }
+
 function save(blob, filename) {
-    link.href = URL.createObjectURL(blob);
+    link.href = window.URL.createObjectURL(blob);
     link.download = filename;
     link.click();
 }
@@ -632,8 +590,8 @@ function Update() {
 
     const delta = clock.getDelta();
 
-    uniforms["time"].value += delta * 5;
-    uniforms["time"].value = clock.elapsedTime;
+    uniformsPsychedelic["time"].value += delta * 5;
+    uniformsPsychedelic["time"].value = clock.elapsedTime;
 
 
     requestAnimationFrame(Update);
@@ -688,25 +646,26 @@ function getGroup(name) {
 
 function createGUI() {
     let sidebar = $('#sidebar ul');
-    for (let i = 0; i < strat.children.length; i++) {
-        let c = strat.children[i];
-        let HTMLGroup = '<li class="group">'
+    let keys = Object.keys(materials);
+    for (let i = 0; i < keys.length; i++) {
+        let group = getGroup(keys[i]);
+        let html_group = '<li class="group">'
             + '<div class="group-button">'
-            + '<span class="group-label">' + c.name + '</span> <span class="group-set-material-label">' + c.material.name + '</span>'
+            + '<span class="group-label">' + group.name + '</span> <span class="group-set-material-label">' + group.material.name + '</span>'
             + '</div>'
             + '<div class="material-panel">';
-        for (let j = 0; j < materials[c.name].availableMaterials.length; j++) {
-            let m = materials[c.name].availableMaterials[j];
-            HTMLGroup += '<div class="material ' + ((c.material.name === m.name) ? "set" : "") + '">'
+        for (let j = 0; j < materials[group.name].availableMaterials.length; j++) {
+            let m = materials[group.name].availableMaterials[j];
+            html_group += '<div class="material ' + ((group.material.name === m.name) ? "set" : "") + '">'
                 + '<div class="material-preview"><img src="images/material-previews/' + m.name + '.png" alt = "' + m.name + '" >'
                 + '</div>'
                 + ' <span class="material-label">' + m.name + '</span>'
                 + '</div>';
         }
 
-        HTMLGroup += '</div>'
+        html_group += '</div>'
             + '</li>';
-        sidebar.append(HTMLGroup);
+        sidebar.append(html_group);
         igniteGUI();
     }
 }
