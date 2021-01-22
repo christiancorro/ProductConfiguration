@@ -243,10 +243,10 @@ function Start() {
     let leather_black = createMaterialTexture("Black leather", 2, 4);
 
 
-    let silver = createMaterialMetal("Silver", cspec_silver, 0.1, 0.1);
-    let nickel = createMaterialMetal("Nickel", cspec_nickel, 0.3, 2);
-    let copper = createMaterialMetal("Copper", cspec_copper, 0.1, 1);
-    let gold = createMaterialMetal("Gold", cspec_gold, 0.1, 0.2);
+    let silver = createMaterialMetal("Silver", cspec_silver, 0.25, 0.7);
+    let nickel = createMaterialMetal("Nickel", cspec_nickel, 0.3, 1.3);
+    let copper = createMaterialMetal("Copper", cspec_copper, 0.3, 0.6);
+    let gold = createMaterialMetal("Gold", cspec_gold, 0.33, 0.4);
 
     let plastic_white = createMaterialPlastic("White plastic", cdiff_plastic_white, 0.55, 2);
     let plastic_red = createMaterialPlastic("Red plastic", cdiff_plastic_red, 0.55, 1);
@@ -269,6 +269,10 @@ function Start() {
                 old_ash,
                 alder,
                 old_alder,
+                gold,
+                silver,
+                copper,
+                nickel,
                 plastic_black,
                 plastic_red,
                 rock_green,
