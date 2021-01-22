@@ -169,7 +169,7 @@
     
                     vec3 l = normalize(lPosition.xyz - vPosition.xyz);
                     vec3 l2 = normalize(lPosition2.xyz - vPosition.xyz);
-                    vec3 l3 = normalize(lPosition3.xyz - vPosition.xyz);
+                    vec3 l3 = normalize( vPosition.xyz - lPosition3.xyz);
     
                     //OBJ MODEL
                     //TO MAKE NORMAL MAP WORK perturbNormal2Arb(...)
@@ -218,7 +218,7 @@
                     vec3 BRDF2 = fresnel2*GSmith(nDotv,nDotl2)*DGGX(nDoth2,roughness*roughness)/(4.0*nDotl2*nDotv);
                     vec3 BRDF3 = fresnel3*GSmith(nDotv,nDotl3)*DGGX(nDoth3,roughness*roughness)/(4.0*nDotl3*nDotv);
     
-                    vec3 outRadiance = envLight*sBRDF + ( (BRDF*nDotl*clight) + (nDotl3*BRDF3*clight3) ) * PI;
+                    vec3 outRadiance = envLight*sBRDF + ( (BRDF*nDotl*clight) + (BRDF2*nDotl2*clight2)  + (nDotl3*BRDF3*clight3) ) * PI;
                     // gamma encode the final value
                     gl_FragColor = vec4(pow( outRadiance, vec3(1.0/2.2)), 1.0);
                     //gl_FragColor = vec4(r,1.0);
@@ -333,7 +333,7 @@
                     vec4 lPosition3 = viewMatrix * vec4( pointLightPosition3, 1.0 );
     
                     vec3 l = normalize(lPosition.xyz - vPosition.xyz);
-                    vec3 l2 = normalize(vPosition.xyz - lPosition2.xyz);
+                    vec3 l2 = normalize(lPosition2.xyz - vPosition.xyz);
                     vec3 l3 = normalize( vPosition.xyz - lPosition3.xyz);
     
                     //OBJ MODEL
@@ -493,7 +493,7 @@
                     vec4 lPosition3 = viewMatrix * vec4( pointLightPosition3, 1.0 );
     
                     vec3 l = normalize(lPosition.xyz - vPosition.xyz);
-                    vec3 l2 = normalize(vPosition.xyz - lPosition2.xyz);
+                    vec3 l2 = normalize(lPosition2.xyz - vPosition.xyz );
                     vec3 l3 = normalize( vPosition.xyz - lPosition3.xyz);
     
                     //OBJ MODEL
@@ -546,7 +546,7 @@
     
                     vec3 sBRDF = BRDF_Specular_GGX_Environment(n, v, cspec, roughness);
     
-                    vec3 outRadiance = (BRDF*nDotl*clight + BRDF2*nDotl2*clight2 + BRDF3*clight3*nDotl3) * PI + (irradiance*cdiff/PI) + ambientLight;
+                    vec3 outRadiance =  ambientLight +  (BRDF*nDotl*clight + BRDF2*nDotl2*clight2 + BRDF3*clight3*nDotl3) * PI + (irradiance*cdiff/PI);
     
                     gl_FragColor = vec4(pow( outRadiance, vec3(1.0/2.2)), 1.0);
                 }

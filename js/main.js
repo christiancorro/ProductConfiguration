@@ -1,3 +1,10 @@
+//TODO: REFACTORING
+//TODO: funzione per istanziazione dei materiali
+//TODO: aggiungere alla gui funzione di prezzo e acquisto 
+//TODO: aggiungere bloom (?) per la lode
+//TODO: scrivere il diario
+//TODO: scrivere il report
+
 // Scene
 let scene, camera, renderer, controls;
 let canvas = document.querySelector("#canvas");
@@ -23,9 +30,9 @@ let irradianceMap = loadCubeMap("irradiance_map");
 gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
 
     strat = gltf.scene.children[0];
-    // strat.rotation.y = -Math.PI / 12;    
-    strat.rotation.z = -Math.PI / 6;
-    // strat.rotation.x = Math.PI / 32;
+    // strat.rotation.y = -Math.PI / 2;
+    strat.rotation.z = -Math.PI / 2;
+    strat.rotation.x = 4 * (Math.PI / 180);
     strat.position.set(0, 0, 0);
     world.add(strat);
 
@@ -36,7 +43,7 @@ gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
 
 const DEFAULT_CAMERA_POSITION_X = 0,
     DEFAULT_CAMERA_POSITION_Y = 0,
-    DEFAULT_CAMERA_POSITION_Z = 4;
+    DEFAULT_CAMERA_POSITION_Z = 2.8;
 
 // -----------------------------------------------
 // START
@@ -66,8 +73,8 @@ function Start() {
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setClearColor(bgColor);
 
-    // renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    // renderer.toneMappingExposure = 1;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1;
     // this.renderer.toneMappingWhitePoint = 1.0;
     // renderer.outputEncoding = THREE.sRGBEncoding;
 
@@ -85,7 +92,7 @@ function Start() {
 
     // world.add(plane);
     scene.add(world);
-    scene.background = envMap;
+    // scene.background = envMap;
     scene.environment = envMap;
 
 
@@ -111,11 +118,6 @@ function Start() {
     let normalMap = loadTexture("textures/materials/wood/wood_normal.jpg");
     let normalMapMetal = loadTexture("textures/materials/metal/Metal032_1K_Normal.jpg");
     let normalMapPlastic = loadTexture("textures/materials/plastic/Plastic006_1K_Normal.jpg");
-
-
-    let diffuseMapChain = loadTexture("/textures/materials/chain/Chainmail004_1K_Color.jpg");
-    let normalMapChain = loadTexture("/textures/materials/chain/Chainmail004_1K_Normal.jpg");
-    let roughnessMapChain = loadTexture("/textures/materials/chain/Chainmail004_1K_Roughness.jpg");
 
     // let diffuseMapBronzo = loadTexture("textures/materials/wood/wood_spec.jpg");
     // let specularMapBronzo = loadTexture(".jpg");
@@ -172,14 +174,14 @@ function Start() {
     var lightParameters2 = {
         red: 1,
         green: 1.0,
-        blue: 0.8,
+        blue: 0.9,
         intensity: 0.4,
     };
     var lightParameters3 = {
         red: 1.0,
         green: 1.0,
-        blue: 1.0,
-        intensity: 0.2,
+        blue: 0.8,
+        intensity: 1.4,
     };
 
     let cl = new THREE.Vector3(
@@ -207,20 +209,20 @@ function Start() {
 
     //prima luce leggermente gialla da interno
     lightMesh = new THREE.Mesh(new THREE.SphereGeometry(5, 32, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(lightParameters.red, lightParameters.green, lightParameters.blue) }));
-    lightMesh.position.set(33, -8, 100);
+    lightMesh.position.set(33, 80, 80);
 
-    scene.add(lightMesh);
+    // scene.add(lightMesh);
 
     //seconda luce non casta om bra per non creare confusione dato che arriva dalla stessa direzione della prima
     lightMesh2 = new THREE.Mesh(new THREE.SphereGeometry(0.1, 32, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(lightParameters2.red, lightParameters2.green, lightParameters2.blue) }));
-    lightMesh2.position.set(-30, -10, -40);
+    lightMesh2.position.set(-30, 1, -40);
 
-    scene.add(lightMesh2);
+    // scene.add(lightMesh2);
 
     //terza luce proveniente dall'esterno, bianca come luce solare
     lightMesh3 = new THREE.Mesh(new THREE.SphereGeometry(0.1, 32, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(lightParameters3.red, lightParameters3.green, lightParameters3.blue) }));
-    lightMesh3.position.set(40, -10, -30);
-    scene.add(lightMesh3);
+    lightMesh3.position.set(40, 10, -30);
+    // scene.add(lightMesh3);
 
 
     let uniform_wood = {
@@ -274,56 +276,6 @@ function Start() {
         ambientLightParameters.green * ambientLightParameters.intensity,
         ambientLightParameters.blue * ambientLightParameters.intensity);
 
-    let uniform_chain = {
-        diffuseMap: { type: "t", value: diffuseMapChain },
-        roughnessMap: { type: "t", value: roughnessMapChain },
-        cspec: { type: "v3", value: new THREE.Vector3(0.04, 0.04, 0.04) },
-        cdiff: { type: "v3", value: new THREE.Vector3(0.5, 0.5, 0.5) },
-        normalMap: { type: "t", value: normalMapChain },
-        normalScale: { type: "v2", value: new THREE.Vector2(2, 2) },
-        irradianceMap: { type: "t", value: irradianceMap },
-        textureRepeat: { type: "v2", value: new THREE.Vector2(1, 1) },
-        envMap: { type: "t", value: envMap },
-
-        pointLightPosition: { type: "v3", value: new THREE.Vector3() },
-        pointLightPosition2: { type: "v3", value: new THREE.Vector3() },
-        pointLightPosition3: { type: "v3", value: new THREE.Vector3() },
-        ambientLight: { type: "v3", value: new THREE.Vector3() },
-        clight: { type: 'v3', value: cl },
-        clight2: { type: 'v3', value: cl2 },
-        clight3: { type: 'v3', value: cl3 }
-    };
-
-    let chain = new THREE.ShaderMaterial({
-        uniforms: uniform_chain,
-        vertexShader: document.getElementById('vs').textContent,
-        fragmentShader: document.getElementById('fs_texture').textContent,
-        extensions: materialExtensions
-    });
-
-    chain.name = "Chain";
-
-    uniform_chain.pointLightPosition.value = new THREE.Vector3(lightMesh.position.x,
-        lightMesh.position.y,
-        lightMesh.position.z);
-
-    uniform_chain.pointLightPosition2.value = new THREE.Vector3(lightMesh2.position.x,
-        lightMesh.position.y,
-        lightMesh.position.z);
-
-    uniform_chain.pointLightPosition3.value = new THREE.Vector3(lightMesh3.position.x,
-        lightMesh.position.y,
-        lightMesh.position.z);
-
-    uniform_chain.clight.value = new THREE.Vector3(
-        lightParameters.red * lightParameters.intensity,
-        lightParameters.green * lightParameters.intensity,
-        lightParameters.blue * lightParameters.intensity);
-
-    uniform_chain.ambientLight.value = new THREE.Vector3(
-        ambientLightParameters.red * ambientLightParameters.intensity,
-        ambientLightParameters.green * ambientLightParameters.intensity,
-        ambientLightParameters.blue * ambientLightParameters.intensity);
 
 
     let uniformsGold = {
@@ -441,7 +393,7 @@ function Start() {
         cspec: { type: "v3", value: new THREE.Vector3(0.04, 0.04, 0.04) },
         cdiff: { type: "v3", value: new THREE.Vector3(0.5, 0.5, 0.5) },
         normalMap: { type: "t", value: normalMapPlastic },
-        normalScale: { type: "v2", value: new THREE.Vector2(10, 10) },
+        normalScale: { type: "v2", value: new THREE.Vector2(2, 2) },
         irradianceMap: { type: "t", value: irradianceMap },
         envMap: { type: "t", value: envMap },
 
@@ -498,30 +450,9 @@ function Start() {
     mats.push(silver);
     mats.push(copper);
     mats.push(materialPsychedelic);
-    mats.push(chain);
 
 
     materials = {
-        "body": {
-            "defaultMaterial": chain,
-            "availableMaterials": [chain, gold, silver, copper, wood, materialPsychedelic, plastic_red, white_plastic, plastic_black, wireMaterial]
-        },
-        "pickguard": {
-            "defaultMaterial": silver,
-            "availableMaterials": [gold, wood, materialPsychedelic, plastic_red, plastic_black, wireMaterial, white_plastic]
-        },
-        "frets": {
-            "defaultMaterial": gold,
-            "availableMaterials": [gold, wood, plastic_red, white_plastic, plastic_black, materialPsychedelic, wireMaterial]
-        },
-        "fret-markers": {
-            "defaultMaterial": white_plastic,
-            "availableMaterials": [gold, wood, plastic_red, white_plastic, plastic_black, wireMaterial]
-        },
-        "metals": {
-            "defaultMaterial": gold,
-            "availableMaterials": [gold, wood, white_plastic, plastic_red, plastic_black, wireMaterial, materialPsychedelic]
-        },
         "head": {
             "defaultMaterial": gold,
             "availableMaterials": [wood, materialPsychedelic, plastic_black, plastic_red, wireMaterial]
@@ -534,17 +465,37 @@ function Start() {
             "defaultMaterial": gold,
             "availableMaterials": [gold, wood, materialPsychedelic, plastic_red, plastic_black, wireMaterial]
         },
-        "knobs-text": {
+        "strings": {
+            "defaultMaterial": gold,
+            "availableMaterials": [gold, materialPsychedelic, white_plastic, plastic_red, wireMaterial]
+        },
+        "frets": {
+            "defaultMaterial": gold,
+            "availableMaterials": [gold, wood, plastic_red, white_plastic, plastic_black, materialPsychedelic, wireMaterial]
+        },
+        "fret-markers": {
             "defaultMaterial": white_plastic,
-            "availableMaterials": [wood, materialPsychedelic, plastic_red, wireMaterial, white_plastic, plastic_black]
+            "availableMaterials": [gold, wood, plastic_red, white_plastic, plastic_black, wireMaterial]
+        },
+        "body": {
+            "defaultMaterial": wood,
+            "availableMaterials": [wood, gold, silver, copper, materialPsychedelic, plastic_red, white_plastic, plastic_black, wireMaterial]
+        },
+        "pickguard": {
+            "defaultMaterial": silver,
+            "availableMaterials": [gold, silver, copper, wood, materialPsychedelic, plastic_red, plastic_black, wireMaterial, white_plastic]
+        },
+        "metals": {
+            "defaultMaterial": gold,
+            "availableMaterials": [gold, wood, white_plastic, plastic_red, plastic_black, wireMaterial, materialPsychedelic]
         },
         "plastics": {
             "defaultMaterial": white_plastic,
             "availableMaterials": [gold, materialPsychedelic, white_plastic, plastic_red, plastic_black, wireMaterial]
         },
-        "strings": {
-            "defaultMaterial": gold,
-            "availableMaterials": [gold, materialPsychedelic, white_plastic, plastic_red, wireMaterial]
+        "knobs-text": {
+            "defaultMaterial": white_plastic,
+            "availableMaterials": [wood, materialPsychedelic, plastic_red, wireMaterial, white_plastic, plastic_black]
         }
     }
 
@@ -727,7 +678,7 @@ function setMaterial(group, material) {
     applyRecursive(group, (child) => { child.material = material });
 }
 
-function getMaterialByName(name) { // TODO: DA SISTEMARE!
+function getMaterialByName(name) {
     return mats.find(obj => obj.name === name);
 }
 

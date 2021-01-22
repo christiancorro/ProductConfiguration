@@ -16,7 +16,7 @@
 
 #sidebar_container.open {
     margin-right: 0%;
-    box-shadow: -5px 0 20px -5px rgba(179, 179, 179, 0);
+    box-shadow: -5px 0 40px -5px rgba(179, 179, 179, 0.6);
 }
 
 #sidebar {
