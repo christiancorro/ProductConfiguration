@@ -124,7 +124,7 @@ body {
     top: 100%;
     background: rgb(255, 255, 255);
     height: 8px;
-    animation-name: example;
+    animation-name: loading;
     animation-duration: 2s;
     animation-iteration-count: infinite;
     animation-direction: alternate;
@@ -132,7 +132,7 @@ body {
     animation-delay: 0.5s;
 }
 
-@keyframes example {
+@keyframes loading {
     from {
         left: 0;
     }
