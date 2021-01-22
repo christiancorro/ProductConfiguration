@@ -39,8 +39,8 @@ gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
     world.add(strat);
 
     Start();
+    console.log("laoded");
     Update();
-
 });
 
 const DEFAULT_CAMERA_POSITION_X = 0,
@@ -55,7 +55,7 @@ let clock;
 
 let materialExtensions = {
     derivatives: true,
-    shaderTextureLOD: true // set to use shader texture LOD
+    shaderTextureLOD: true
 };
 
 let mats = [];
@@ -212,19 +212,16 @@ function Start() {
         intensity: 0.1,
     };
 
-    //prima luce leggermente gialla da interno
     lightMesh = new THREE.Mesh(new THREE.SphereGeometry(5, 32, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(lightParameters.red, lightParameters.green, lightParameters.blue) }));
     lightMesh.position.set(0, 80, 80);
 
     // scene.add(lightMesh);
 
-    //seconda luce non casta om bra per non creare confusione dato che arriva dalla stessa direzione della prima
     lightMesh2 = new THREE.Mesh(new THREE.SphereGeometry(0.1, 32, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(lightParameters2.red, lightParameters2.green, lightParameters2.blue) }));
     lightMesh2.position.set(-30, 1, -40);
 
     // scene.add(lightMesh2);
 
-    //terza luce proveniente dall'esterno, bianca come luce solare
     lightMesh3 = new THREE.Mesh(new THREE.SphereGeometry(0.1, 32, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(lightParameters3.red, lightParameters3.green, lightParameters3.blue) }));
     lightMesh3.position.set(40, 10, -30);
     // scene.add(lightMesh3);
@@ -452,33 +449,10 @@ function Start() {
         }
     }
 
-
-    // for (let i = 0; i < plastics.children.length; i++) {
-    //     let c = plastics.children[i];
-
-    //     c.material = material;
-    // }
-
-    setMaterials();
-    createGUI();
-
-
-    // Lights
-    // addLight(0.3, -50, 100, 10);
-    // addLight(0.2, 0, 1, 2);
-    // addLight(0.5, -1, 1, -2);
-    // addLight(10, 10, 2);
-
-
     // Stats
     stats = new Stats();
     stats.domElement.classList.add("stats");
     document.body.appendChild(stats.domElement);
-
-    // Axes
-    // let axesHelper = new THREE.AxesHelper(5);
-    // scene.add(axesHelper);
-
 
     // Controls
     // controls = new THREE.TrackballControls(camera, renderer.domElement);
@@ -494,7 +468,8 @@ function Start() {
     controls.enableKeys = true;
 
     // Now, please, go
-
+    setMaterials();
+    createGUI();
 }
 
 function createMaterialMetal(name, cspec, roughness, normalScale) {
