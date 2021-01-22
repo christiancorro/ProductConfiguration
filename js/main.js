@@ -25,6 +25,8 @@ const gltfLoader = new THREE.GLTFLoader();
 let envMap = loadCubeMap("env_map");
 envMap.minFilter = THREE.LinearMipMapLinearFilter;
 
+let normalMapMetal, normalMapPlastic;
+
 let irradianceMap = loadCubeMap("irradiance_map");
 
 gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
@@ -80,23 +82,21 @@ function Start() {
     renderer.setClearColor(bgColor);
 
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1;
+    // renderer.toneMappingExposure = 0.1;
     // this.renderer.toneMappingWhitePoint = 1.0;
     // renderer.outputEncoding = THREE.sRGBEncoding;
 
     camera.position.set(DEFAULT_CAMERA_POSITION_X, DEFAULT_CAMERA_POSITION_Y, DEFAULT_CAMERA_POSITION_Z);
     camera.lookAt(new THREE.Vector3(0, 0.4, 0));
 
-    let planeGeometry = new THREE.PlaneBufferGeometry(10, 10, 32, 32);
+    let planeGeometry = new THREE.PlaneBufferGeometry(9, 7, 2, 2);
     let wireMaterial = new THREE.MeshBasicMaterial({ color: 0x999999, wireframe: true });
-    wireMaterial.name = "Wireframe";
-
     plane = new THREE.Mesh(planeGeometry, wireMaterial);
-    plane.position.set(0, -0.1, 0);
+    plane.position.set(0, -2, 0);
     plane.rotation.x = Math.PI / 2;
 
 
-    // world.add(plane);
+    world.add(plane);
     scene.add(world);
     // scene.background = envMap;
     scene.environment = envMap;
@@ -108,21 +108,6 @@ function Start() {
 
     });
     materialPsychedelic.name = "Psychedelic";
-
-    // let normalMap = loadTexture("textures/materials/wood/wood_normal.jpg");
-    let diffuseMapWood = loadTexture("textures/materials/wood/wood_col.jpg");
-    let roughnessMapWood = loadTexture("textures/materials/wood/wood_rough.jpg");
-    let roughnessMapPlastic = loadTexture("textures/materials/plastic/Plastic006_1K_Roughness.jpg");
-    let roughnessMapMetal = loadTexture("textures/materials/metal/Metal032_1K_Roughness.jpg");
-    let normalMapWood = loadTexture("textures/materials/wood/wood_normal.jpg");
-    let normalMapMetal = loadTexture("textures/materials/metal/Metal032_1K_Normal.jpg");
-    let normalMapPlastic = loadTexture("textures/materials/plastic/Plastic006_1K_Normal.jpg");
-
-    // let diffuseMapBronzo = loadTexture("textures/materials/wood/wood_spec.jpg");
-    // let specularMapBronzo = loadTexture(".jpg");
-    // let roughnessMapBronzo = loadTexture("textures/materials/bronzo_rgh.jpg");
-
-
 
     let cspec_gold = {
         red: 1.022,
@@ -142,10 +127,16 @@ function Start() {
         blue: 0.915
     };
 
+    let cspec_nickel = {
+        red: 0.660,
+        green: 0.609,
+        blue: 0.526
+    };
+
     let cdiff_plastic_white = {
-        red: 1,
-        green: 1,
-        blue: 1
+        red: 0.9,
+        green: 0.9,
+        blue: 0.9
     };
 
     let cdiff_plastic_black = {
@@ -155,9 +146,21 @@ function Start() {
     };
 
     let cdiff_plastic_red = {
-        red: 1,
-        green: 0.001,
-        blue: 0.001
+        red: 0.6,
+        green: 0,
+        blue: 0.03
+    };
+
+    let cdiff_plastic_blue = {
+        red: 0,
+        green: 0.1,
+        blue: 0.6
+    };
+
+    let cdiff_plastic_green = {
+        red: 0.09020,
+        green: 0.73137,
+        blue: 0.14314
     };
 
     let cdiff_plastic_old_white = {
@@ -170,20 +173,20 @@ function Start() {
     lightParameters = {
         red: 1.0,
         green: 1.0,
-        blue: 0.8,
-        intensity: 1.2,
+        blue: 0.9,
+        intensity: 1.3,
     };
     lightParameters2 = {
-        red: 1,
-        green: 1.0,
-        blue: 0.9,
-        intensity: 0.35,
+        red: 0.5,
+        green: 0.5,
+        blue: 0.5,
+        intensity: 0.3,
     };
     lightParameters3 = {
         red: 1.0,
         green: 1.0,
-        blue: 0.8,
-        intensity: 1.6,
+        blue: 0.9,
+        intensity: 1.3,
     };
 
     cl = new THREE.Vector3(
@@ -211,7 +214,7 @@ function Start() {
 
     //prima luce leggermente gialla da interno
     lightMesh = new THREE.Mesh(new THREE.SphereGeometry(5, 32, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(lightParameters.red, lightParameters.green, lightParameters.blue) }));
-    lightMesh.position.set(33, 80, 80);
+    lightMesh.position.set(0, 80, 80);
 
     // scene.add(lightMesh);
 
@@ -226,70 +229,226 @@ function Start() {
     lightMesh3.position.set(40, 10, -30);
     // scene.add(lightMesh3);
 
+    normalMapMetal = loadTexture("/textures/materials/metal/normal.jpg");
+    normalMapPlastic = loadTexture("/textures/materials/plastic/normal.jpg");
 
-    let wood = createMaterialTexture("Wood", diffuseMapWood, roughnessMapWood, normalMapWood, 1, 1);
+    let ash2 = createMaterialTexture("Ash 2", 0.6, 2);
+    let ash = createMaterialTexture("Ash", 2, 2);
+    let old_ash = createMaterialTexture("Old ash", 3, 2);
+    let alder = createMaterialTexture("Alder", 3, 2);
+    let old_alder = createMaterialTexture("Old alder", 4, 1);
 
-    let silver = createMaterialMetal("Silver", cspec_silver, 0.1, normalMapMetal, 0.1);
-    let copper = createMaterialMetal("Copper", cspec_copper, 0.1, normalMapMetal, 1);
-    let gold = createMaterialMetal("Gold", cspec_gold, 0.1, normalMapMetal, 0.2);
+    let fabric_blue = createMaterialTexture("Blue fabric", 1, 3);
+    let fabric_red = createMaterialTexture("Red fabric", 0.4, 3);
+    let fabric_black = createMaterialTexture("Black fabric", 2, 4);
 
-    let plastic_white = createMaterialPlastic("White plastic", cdiff_plastic_white, 0.5, normalMapPlastic, 3);
-
-    let plastic_red = createMaterialPlastic("Red plastic", cdiff_plastic_red, 0.5, normalMapPlastic, 4);
-
-    let plastic_black = createMaterialPlastic("Black plastic", cdiff_plastic_black, 0.5, normalMapPlastic, 4);
+    let leather_white = createMaterialTexture("White leather", 2, 2);
+    let leather_red = createMaterialTexture("Red leather", 2, 2);
+    let leather_black = createMaterialTexture("Black leather", 2, 4);
 
 
-    mats.push(plastic_red);
-    mats.push(plastic_black);
-    mats.push(wireMaterial);
+    let silver = createMaterialMetal("Silver", cspec_silver, 0.1, 0.1);
+    let nickel = createMaterialMetal("Nickel", cspec_nickel, 0.3, 2);
+    let copper = createMaterialMetal("Copper", cspec_copper, 0.1, 1);
+    let gold = createMaterialMetal("Gold", cspec_gold, 0.1, 0.2);
+
+    let plastic_white = createMaterialPlastic("White plastic", cdiff_plastic_white, 0.7, 3);
+    let plastic_red = createMaterialPlastic("Red plastic", cdiff_plastic_red, 0.5, 4);
+    let plastic_black = createMaterialPlastic("Black plastic", cdiff_plastic_black, 0.5, 4);
+    let plastic_green = createMaterialPlastic("Green plastic", cdiff_plastic_green, 0.5, 4);
+    let plastic_blue = createMaterialPlastic("Blue plastic", cdiff_plastic_blue, 0.5, 4);
+    let plastic_old_white = createMaterialPlastic("Old plastic", cdiff_plastic_old_white, 0.8, 10);
+
+    let rock_green = createMaterialTexture("Green rock", 10, 2);
+
     mats.push(materialPsychedelic);
 
 
     materials = {
         "head": {
-            "defaultMaterial": gold,
-            "availableMaterials": [wood, materialPsychedelic, plastic_black, plastic_red, wireMaterial]
+            "defaultMaterial": ash,
+            "availableMaterials": [
+                ash,
+                ash2,
+                old_ash,
+                alder,
+                old_alder,
+                plastic_black,
+                plastic_red,
+                rock_green,
+                materialPsychedelic]
         },
         "logo": {
-            "defaultMaterial": plastic_black,
-            "availableMaterials": [gold, wood, plastic_white, plastic_red, plastic_black, wireMaterial]
+            "defaultMaterial": nickel,
+            "availableMaterials": [
+                plastic_old_white,
+                plastic_white,
+                plastic_black,
+                plastic_red,
+                plastic_green,
+                plastic_blue,
+                gold,
+                silver,
+                copper,
+                nickel,
+                rock_green,
+                materialPsychedelic]
         },
         "neck": {
-            "defaultMaterial": gold,
-            "availableMaterials": [gold, wood, materialPsychedelic, plastic_red, plastic_black, wireMaterial]
+            "defaultMaterial": alder,
+            "availableMaterials": [
+                ash,
+                ash2,
+                old_ash,
+                alder,
+                old_alder,
+                gold,
+                silver,
+                copper,
+                nickel,
+                rock_green,
+                materialPsychedelic]
         },
         "strings": {
-            "defaultMaterial": gold,
-            "availableMaterials": [gold, materialPsychedelic, plastic_white, plastic_red, wireMaterial]
+            "defaultMaterial": nickel,
+            "availableMaterials": [
+                gold,
+                silver,
+                copper,
+                nickel,
+                materialPsychedelic]
         },
         "frets": {
             "defaultMaterial": gold,
-            "availableMaterials": [gold, wood, plastic_red, plastic_white, plastic_black, materialPsychedelic, wireMaterial]
+            "availableMaterials": [
+                plastic_old_white,
+                plastic_white,
+                plastic_black,
+                plastic_red,
+                plastic_green,
+                plastic_blue,
+                gold,
+                silver,
+                copper,
+                nickel,
+                ash,
+                ash2,
+                old_ash,
+                alder,
+                old_alder,
+                rock_green,
+                materialPsychedelic]
         },
         "fret-markers": {
-            "defaultMaterial": plastic_white,
-            "availableMaterials": [gold, wood, plastic_red, plastic_white, plastic_black, wireMaterial]
+            "defaultMaterial": plastic_old_white,
+            "availableMaterials": [
+                plastic_old_white,
+                plastic_white,
+                plastic_black,
+                plastic_red,
+                plastic_green,
+                plastic_blue,
+                gold,
+                silver,
+                copper,
+                nickel,
+                ash,
+                ash2,
+                old_ash,
+                rock_green,
+                materialPsychedelic]
         },
         "body": {
-            "defaultMaterial": wood,
-            "availableMaterials": [wood, gold, silver, copper, materialPsychedelic, plastic_red, plastic_white, plastic_black, wireMaterial]
+            "defaultMaterial": ash,
+            "availableMaterials": [
+                ash,
+                ash2,
+                old_ash,
+                alder,
+                old_alder,
+                gold,
+                silver,
+                copper,
+                nickel,
+                plastic_old_white,
+                plastic_white,
+                plastic_black,
+                plastic_red,
+                plastic_green,
+                plastic_blue,
+                rock_green,
+                materialPsychedelic]
         },
         "pickguard": {
-            "defaultMaterial": silver,
-            "availableMaterials": [gold, silver, copper, wood, materialPsychedelic, plastic_red, plastic_black, wireMaterial, plastic_white]
+            "defaultMaterial": gold,
+            "availableMaterials": [
+                plastic_old_white,
+                plastic_white,
+                plastic_black,
+                plastic_red,
+                plastic_green,
+                plastic_blue,
+                fabric_black,
+                fabric_blue,
+                fabric_red,
+                leather_white,
+                leather_red,
+                leather_black,
+                ash,
+                ash2,
+                old_ash,
+                alder,
+                old_alder,
+                gold,
+                silver,
+                copper,
+                nickel,
+                rock_green,
+                materialPsychedelic]
         },
         "metals": {
             "defaultMaterial": gold,
-            "availableMaterials": [gold, wood, plastic_white, plastic_red, plastic_black, wireMaterial, materialPsychedelic]
+            "availableMaterials": [
+                gold,
+                silver,
+                copper,
+                nickel,
+                plastic_white,
+                plastic_red,
+                plastic_black,
+                materialPsychedelic]
         },
         "plastics": {
-            "defaultMaterial": plastic_white,
-            "availableMaterials": [gold, materialPsychedelic, plastic_white, plastic_red, plastic_black, wireMaterial]
+            "defaultMaterial": plastic_old_white,
+            "availableMaterials": [
+                plastic_old_white,
+                plastic_white,
+                plastic_black,
+                plastic_red,
+                plastic_green,
+                plastic_blue,
+                gold,
+                silver,
+                copper,
+                nickel,
+                rock_green,
+                materialPsychedelic]
         },
         "knobs-text": {
-            "defaultMaterial": plastic_white,
-            "availableMaterials": [wood, materialPsychedelic, plastic_red, wireMaterial, plastic_white, plastic_black]
+            "defaultMaterial": nickel,
+            "availableMaterials": [
+                plastic_old_white,
+                plastic_white,
+                plastic_black,
+                plastic_red,
+                plastic_green,
+                plastic_blue,
+                gold,
+                silver,
+                copper,
+                nickel,
+                rock_green,
+                materialPsychedelic]
         }
     }
 
@@ -338,7 +497,9 @@ function Start() {
 
 }
 
-function createMaterialMetal(name, cspec, roughness, normalMap, normalScale) {
+function createMaterialMetal(name, cspec, roughness, normalScale) {
+    let normalMap = normalMapMetal;
+
     let uniforms = {
         cspec: { type: "v3", value: new THREE.Vector3(0.8, 0.8, 0.8) },
         roughness: { type: "f", value: roughness },
@@ -389,7 +550,9 @@ function createMaterialMetal(name, cspec, roughness, normalMap, normalScale) {
     return metal;
 }
 
-function createMaterialPlastic(name, cdiff, roughness, normalMap, normalScale) {
+function createMaterialPlastic(name, cdiff, roughness, normalScale) {
+
+    let normalMap = normalMapPlastic;
 
     let uniforms = {
         cspec: { type: "v3", value: new THREE.Vector3(0.04, 0.04, 0.04) },
@@ -447,7 +610,13 @@ function createMaterialPlastic(name, cdiff, roughness, normalMap, normalScale) {
     return plastic;
 }
 
-function createMaterialTexture(name, diffuseMap, roughnessMap, normalMap, normalScale, textureRepeat) {
+function createMaterialTexture(name, normalScale, textureRepeat) {
+
+    let diffuseMap = loadTexture("/textures/materials/" + name + "/diffuse.jpg");
+    let roughnessMap = loadTexture("/textures/materials/" + name + "/roughness.jpg");
+    let normalMap = loadTexture("/textures/materials/" + name + "/normal.jpg");
+
+
     let uniforms = {
         diffuseMap: { type: "t", value: diffuseMap },
         roughnessMap: { type: "t", value: roughnessMap },

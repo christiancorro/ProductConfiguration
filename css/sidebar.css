@@ -198,12 +198,11 @@
     background-color: #fff;
     display: inline-block;
     cursor: pointer;
-    width: 90px;
-    height: 90px;
-    padding: 5px;
-    margin: 5px;
-    margin-right: 10px;
-    margin-top: 15px;
+    width: 87px;
+    height: 87px;
+    padding: 0px;
+    /* margin: 5px; */
+    margin-top: 4px;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0);
     transition: all .5s ease-in-out;
 }
@@ -240,8 +239,9 @@
 
 #sidebar .material-panel .material.set .material-preview img {
     /* filter: grayscale(0); */
-    transform: scale(1.15);
-    box-shadow: 0 0 5px rgb(170, 170, 170);
+    /* transform: scale(1.08); */
+    box-shadow: 0 0 2px 2px rgb(0, 0, 0);
+    /* border: 3px solid black; */
 }
 
 #sidebar .material-panel .material .material-preview img {
@@ -250,15 +250,16 @@
     height: 40px;
     display: block;
     margin: 0 auto;
-    box-shadow: 0 0 3px rgb(110, 110, 110);
+    box-shadow: 0 0 4px 1px rgb(199, 199, 199);
     /* filter: grayscale(80%); */
-    transition: all .2s ease;
+    transition: all .4s ease;
 }
 
 #sidebar .material-panel .material:hover img {
     /* filter: grayscale(0); */
-    transform: scale(1.05);
-    box-shadow: 0 0 3px rgb(139, 139, 139);
+    /* transform: scale(1.05); */
+    box-shadow: 0 0 4px 1px rgb(143, 143, 143);
+    /* border: 2px solid rgb(146, 146, 146); */
 }
 
 #sidebar .material-panel .material:hover .material-label {
