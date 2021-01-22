@@ -229,8 +229,8 @@ function Start() {
     lightMesh3.position.set(40, 10, -30);
     // scene.add(lightMesh3);
 
-    normalMapMetal = loadTexture("/textures/materials/metal/normal.jpg");
-    normalMapPlastic = loadTexture("/textures/materials/plastic/normal.jpg");
+    normalMapMetal = loadTexture("textures/materials/metal/normal.jpg");
+    normalMapPlastic = loadTexture("textures/materials/plastic/normal.jpg");
 
     let ash2 = createMaterialTexture("Ash 2", 0.6, 2);
     let ash = createMaterialTexture("Ash", 2, 2);
@@ -612,9 +612,9 @@ function createMaterialPlastic(name, cdiff, roughness, normalScale) {
 
 function createMaterialTexture(name, normalScale, textureRepeat) {
 
-    let diffuseMap = loadTexture("/textures/materials/" + name + "/diffuse.jpg");
-    let roughnessMap = loadTexture("/textures/materials/" + name + "/roughness.jpg");
-    let normalMap = loadTexture("/textures/materials/" + name + "/normal.jpg");
+    let diffuseMap = loadTexture("textures/materials/" + name + "/diffuse.jpg");
+    let roughnessMap = loadTexture("textures/materials/" + name + "/roughness.jpg");
+    let normalMap = loadTexture("textures/materials/" + name + "/normal.jpg");
 
 
     let uniforms = {
