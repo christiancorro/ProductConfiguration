@@ -34,7 +34,7 @@ gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
     strat = gltf.scene.children[0];
     // strat.rotation.y = -Math.PI / 2;
     strat.rotation.z = -Math.PI / 2;
-    strat.rotation.x = 4 * (Math.PI / 180);
+    // strat.rotation.x = 4 * (Math.PI / 180);
     strat.position.set(0, 0, 0);
     world.add(strat);
 
@@ -89,7 +89,7 @@ function Start() {
     camera.position.set(DEFAULT_CAMERA_POSITION_X, DEFAULT_CAMERA_POSITION_Y, DEFAULT_CAMERA_POSITION_Z);
     camera.lookAt(new THREE.Vector3(0, 0.4, 0));
 
-    let planeGeometry = new THREE.PlaneBufferGeometry(9, 7, 2, 2);
+    let planeGeometry = new THREE.PlaneBufferGeometry(8, 6, 2, 2);
     let wireMaterial = new THREE.MeshBasicMaterial({ color: 0x999999, wireframe: true });
     plane = new THREE.Mesh(planeGeometry, wireMaterial);
     plane.position.set(0, -2, 0);
@@ -252,12 +252,12 @@ function Start() {
     let copper = createMaterialMetal("Copper", cspec_copper, 0.1, 1);
     let gold = createMaterialMetal("Gold", cspec_gold, 0.1, 0.2);
 
-    let plastic_white = createMaterialPlastic("White plastic", cdiff_plastic_white, 0.7, 3);
-    let plastic_red = createMaterialPlastic("Red plastic", cdiff_plastic_red, 0.5, 4);
-    let plastic_black = createMaterialPlastic("Black plastic", cdiff_plastic_black, 0.5, 4);
-    let plastic_green = createMaterialPlastic("Green plastic", cdiff_plastic_green, 0.5, 4);
-    let plastic_blue = createMaterialPlastic("Blue plastic", cdiff_plastic_blue, 0.5, 4);
-    let plastic_old_white = createMaterialPlastic("Old plastic", cdiff_plastic_old_white, 0.8, 10);
+    let plastic_white = createMaterialPlastic("White plastic", cdiff_plastic_white, 0.55, 2);
+    let plastic_red = createMaterialPlastic("Red plastic", cdiff_plastic_red, 0.55, 1);
+    let plastic_black = createMaterialPlastic("Black plastic", cdiff_plastic_black, 0.55, 1);
+    let plastic_green = createMaterialPlastic("Green plastic", cdiff_plastic_green, 0.55, 1);
+    let plastic_blue = createMaterialPlastic("Blue plastic", cdiff_plastic_blue, 0.55, 1);
+    let plastic_old_white = createMaterialPlastic("Old plastic", cdiff_plastic_old_white, 0.7, 4);
 
     let rock_green = createMaterialTexture("Green rock", 10, 2);
 
@@ -279,7 +279,7 @@ function Start() {
                 materialPsychedelic]
         },
         "logo": {
-            "defaultMaterial": nickel,
+            "defaultMaterial": gold,
             "availableMaterials": [
                 plastic_old_white,
                 plastic_white,
@@ -485,7 +485,7 @@ function Start() {
     controls = new THREE.OrbitControls(camera, renderer.domElement);
     // controls.rotateSpeed = 4;
     controls.minDistance = 0.1;
-    controls.maxDistance = 5;
+    controls.maxDistance = 6;
     controls.enableDamping = true;
     // controls.enablePan = false;
     controls.dampingFactor = 0.2;
@@ -826,7 +826,7 @@ function createGUI() {
         for (let j = 0; j < materials[group.name].availableMaterials.length; j++) {
             let m = materials[group.name].availableMaterials[j];
             html_group += '<div class="material ' + ((group.material.name === m.name) ? "set" : "") + '">'
-                + '<div class="material-preview"><img src="images/material-previews/' + m.name + '.png" alt = "' + m.name + '" >'
+                + '<div class="material-preview"><img src="images/material-previews/' + m.name + '.jpg" alt = "' + m.name + '" >'
                 + '</div>'
                 + ' <span class="material-label">' + m.name + '</span>'
                 + '</div>';
@@ -845,9 +845,9 @@ function loadCubeMap(path) {
     loader.setPath('textures/cubemaps/' + path + "/");
 
     var textureCube = loader.load([
-        'px.png', 'nx.png',
-        'py.png', 'ny.png',
-        'pz.png', 'nz.png'
+        'px.jpg', 'nx.jpg',
+        'py.jpg', 'ny.jpg',
+        'pz.jpg', 'nz.jpg'
     ]);
     return textureCube;
 }
