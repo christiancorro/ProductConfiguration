@@ -39,13 +39,12 @@ gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
     world.add(strat);
 
     Start();
-    console.log("laoded");
     Update();
 });
 
 const DEFAULT_CAMERA_POSITION_X = 0,
     DEFAULT_CAMERA_POSITION_Y = 0,
-    DEFAULT_CAMERA_POSITION_Z = 2.8;
+    DEFAULT_CAMERA_POSITION_Z = 2.9;
 
 // -----------------------------------------------
 // START
@@ -470,6 +469,7 @@ function Start() {
     // Now, please, go
     setMaterials();
     createGUI();
+    pageLoaded();
 }
 
 function createMaterialMetal(name, cspec, roughness, normalScale) {
@@ -836,4 +836,8 @@ function loadTexture(file) {
         texture.needsUpdate = true;
     })
     return texture;
+}
+
+function pageLoaded() {
+    $(".loading_page").addClass("loaded");
 }
