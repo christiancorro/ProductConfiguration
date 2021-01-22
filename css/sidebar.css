@@ -286,13 +286,14 @@
     text-transform: lowercase;
     font-style: italic;
     font-size: 0.8em;
+    letter-spacing: 0.1em;
     color: #888888;
     display: inline-block;
     margin-left: 20px;
     margin-bottom: 15px;
     margin-top: -20px;
     cursor: pointer;
-    width: 70px;
+    width: 75px;
     transition: color .3s ease-in-out;
 }
 
@@ -301,6 +302,31 @@
 }
 
 .collapse span:active {
+    /* text-decoration: underline; */
+    font-weight: 600;
+}
+
+.reset span {
+    font-family: FuturaPT-Book, sans-serif;
+    text-transform: lowercase;
+    font-style: italic;
+    font-size: 0.8em;
+    letter-spacing: 0.1em;
+    color: #888888;
+    display: block;
+    position: relative;
+    cursor: pointer;
+    float: right;
+    margin: 30px;
+    margin-top: 93px;
+    transition: color .3s ease-in-out;
+}
+
+.reset span:hover {
+    color: #000;
+}
+
+.reset span:active {
     /* text-decoration: underline; */
     font-weight: 600;
 }

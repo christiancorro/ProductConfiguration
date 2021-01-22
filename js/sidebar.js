@@ -5,6 +5,8 @@ function igniteGUI() {
     let animateTime = 10; //ms
     let material = $('.material');
     let collapse = $('.collapse');
+    let reset = $('.reset');
+
 
     group_button.mousedown(function (e) {
         e.stopPropagation();
@@ -42,6 +44,10 @@ function igniteGUI() {
         groups.each(function (e) {
             $(this).removeClass("open").stop().animate({ height: '50' }, animateTime);
         })
+    });
+
+    reset.mousedown(function (e) {
+        setMaterials();
     });
 
     interact();
