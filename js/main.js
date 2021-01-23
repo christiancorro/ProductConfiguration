@@ -1,7 +1,4 @@
-//TODO: REFACTORING
-//TODO: funzione per istanziazione dei materiali
-//TODO: aggiungere alla gui funzione di prezzo e acquisto 
-//TODO: aggiungere bloom (?) per la lode
+//TODO: refactoring
 //TODO: scrivere il diario
 //TODO: scrivere il report
 
