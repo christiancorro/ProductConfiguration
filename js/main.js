@@ -41,7 +41,7 @@ gltfLoader.load('models/stratocaster/stratocaster.gltf', function (gltf) {
 
 const DEFAULT_CAMERA_POSITION_X = 0,
     DEFAULT_CAMERA_POSITION_Y = 0,
-    DEFAULT_CAMERA_POSITION_Z = 2.8;
+    DEFAULT_CAMERA_POSITION_Z = 3.1;
 
 // -----------------------------------------------
 // START
