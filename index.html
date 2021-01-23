@@ -161,6 +161,25 @@
                     vec2 AB = vec2( -1.04, 1.04 ) * a004 + r.zw;
                     return cspec * AB.x + AB.y;
                 }
+
+                vec3 uncharted2Tonemap(vec3 x) {
+                    float A = 0.15;
+                    float B = 0.50;
+                    float C = 0.10;
+                    float D = 0.20;
+                    float E = 0.02;
+                    float F = 0.30;
+                    float W = 11.2;
+                    return ((x * (A * x + C * B) + D * E) / (x * (A * x + B) + D * F)) - E / F;
+                  }
+
+                  vec3 uncharted2(vec3 color) {
+                    const float W = 16.2;
+                    float exposureBias = 2.0;
+                    vec3 curr = uncharted2Tonemap(exposureBias * color);
+                    vec3 whiteScale = 2.0 / uncharted2Tonemap(vec3(W));
+                    return curr * whiteScale;
+                  }
     
                 void main() {
                     vec4 lPosition = viewMatrix * vec4( pointLightPosition, 1.0 );
@@ -219,6 +238,7 @@
                     vec3 BRDF3 = fresnel3*GSmith(nDotv,nDotl3)*DGGX(nDoth3,roughness*roughness)/(4.0*nDotl3*nDotv);
     
                     vec3 outRadiance = envLight*sBRDF + ( (BRDF*nDotl*clight) + (BRDF2*nDotl2*clight2)  + (nDotl3*BRDF3*clight3) ) * PI;
+                    outRadiance = uncharted2(outRadiance);
                     // gamma encode the final value
                     gl_FragColor = vec4(pow( outRadiance, vec3(1.0/2.2)), 1.0);
                     //gl_FragColor = vec4(r,1.0);
@@ -325,7 +345,36 @@
                     vec2 AB = vec2( -1.04, 1.04 ) * a004 + r.zw;
                     return cspec * AB.x + AB.y;
                 }
+
+                // Narkowicz 2015, "ACES Filmic Tone Mapping Curve"
+                vec3 ACES_Filmic(vec3 x) {
+                    const float a = 2.51;
+                    const float b = 0.03;
+                    const float c = 2.43;
+                    const float d = 0.59;
+                    const float e = 0.14;
+                    return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
+                }
+                vec3 uncharted2Tonemap(vec3 x) {
+                    float A = 0.15;
+                    float B = 0.50;
+                    float C = 0.10;
+                    float D = 0.20;
+                    float E = 0.02;
+                    float F = 0.30;
+                    float W = 11.2;
+                    return ((x * (A * x + C * B) + D * E) / (x * (A * x + B) + D * F)) - E / F;
+                  }
+
+                  vec3 uncharted2(vec3 color) {
+                    const float W = 16.2;
+                    float exposureBias = 2.0;
+                    vec3 curr = uncharted2Tonemap(exposureBias * color);
+                    vec3 whiteScale = 2.0 / uncharted2Tonemap(vec3(W));
+                    return curr * whiteScale;
+                  }
     
+                
                 void main() {
     
                     vec4 lPosition = viewMatrix * vec4( pointLightPosition, 1.0 );
@@ -382,7 +431,7 @@
                     vec3 BRDF3 = (vec3(1.0)-fresnel3)*cdiff/PI + fresnel3*GSmith(nDotv,nDotl3)*DGGX(nDoth3,roughness*roughness)/(4.0*nDotl3*nDotv);
     
                     vec3 outRadiance = ambientLight+ ( (BRDF*nDotl*clight)+(BRDF2*nDotl2*clight2) + (nDotl3*BRDF3*clight3) ) *PI + (irradiance*cdiff/PI);
-    
+                    outRadiance = uncharted2(outRadiance);
                     gl_FragColor = vec4(pow( outRadiance, vec3(1.0/2.2)), 1.0);
     
                 }
@@ -485,6 +534,26 @@
                     vec2 AB = vec2( -1.04, 1.04 ) * a004 + r.zw;
                     return cspec * AB.x + AB.y;
                 }
+                
+                // https://github.com/dmnsgn/glsl-tone-map
+                vec3 uncharted2Tonemap(vec3 x) {
+                    float A = 0.15;
+                    float B = 0.50;
+                    float C = 0.10;
+                    float D = 0.20;
+                    float E = 0.02;
+                    float F = 0.30;
+                    float W = 11.2;
+                    return ((x * (A * x + C * B) + D * E) / (x * (A * x + B) + D * F)) - E / F;
+                  }
+
+                  vec3 uncharted2(vec3 color) {
+                    const float W = 16.2;
+                    float exposureBias = 2.0;
+                    vec3 curr = uncharted2Tonemap(exposureBias * color);
+                    vec3 whiteScale = 2.0 / uncharted2Tonemap(vec3(W));
+                    return curr * whiteScale;
+                  }
     
                 void main() {
     
@@ -547,7 +616,7 @@
                     vec3 sBRDF = BRDF_Specular_GGX_Environment(n, v, cspec, roughness);
     
                     vec3 outRadiance =  ambientLight +  (BRDF*nDotl*clight + BRDF2*nDotl2*clight2 + BRDF3*clight3*nDotl3) * PI + (irradiance*cdiff/PI);
-    
+                    outRadiance = uncharted2(outRadiance);
                     gl_FragColor = vec4(pow( outRadiance, vec3(1.0/2.2)), 1.0);
                 }
             </script>

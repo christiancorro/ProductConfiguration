@@ -78,8 +78,6 @@ function Start() {
     renderer.setClearColor(bgColor);
 
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    // renderer.toneMappingExposure = 0.1;
-    // this.renderer.toneMappingWhitePoint = 1.0;
     // renderer.outputEncoding = THREE.sRGBEncoding;
 
     camera.position.set(DEFAULT_CAMERA_POSITION_X, DEFAULT_CAMERA_POSITION_Y, DEFAULT_CAMERA_POSITION_Z);
@@ -242,7 +240,7 @@ function Start() {
 
     let silver = createMaterialMetal("Silver", cspec_silver, 0.25, 0.7);
     let nickel = createMaterialMetal("Nickel", cspec_nickel, 0.3, 1.3);
-    let copper = createMaterialMetal("Copper", cspec_copper, 0.3, 0.6);
+    let copper = createMaterialMetal("Copper", cspec_copper, 0.25, 0.6);
     let gold = createMaterialMetal("Gold", cspec_gold, 0.33, 0.4);
 
     let plastic_white = createMaterialPlastic("White plastic", cdiff_plastic_white, 0.55, 2);
@@ -270,8 +268,12 @@ function Start() {
                 silver,
                 copper,
                 nickel,
+                plastic_old_white,
+                plastic_white,
                 plastic_black,
                 plastic_red,
+                plastic_green,
+                plastic_blue,
                 rock_green,
                 materialPsychedelic]
         },

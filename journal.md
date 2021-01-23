@@ -26,5 +26,14 @@ Mi piace.
 \
 <img src="images/journal/schizzo_gui.png" alt="Sketch delle parti modificabili">
 
-<img src="images/journal/skybox.png" alt="Sketch delle parti modificabili">
 Trasformazione in cube map con : https://jaxry.github.io/panorama-to-cubemap/
+
+
+<img src="images/journal/skybox.png" alt="Sketch delle parti modificabili">
+
+<img src="images/journal/shader_material.gif" alt="Sketch delle parti modificabili" width="800">
+
+
+<img src="images/journal/gui.gif" alt="Sketch delle parti modificabili" width="800">
+
+<img src="images/journal/loading_page.gif" alt="Sketch delle parti modificabili" width="800">
