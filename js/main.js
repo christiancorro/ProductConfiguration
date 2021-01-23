@@ -1,7 +1,3 @@
-//TODO: refactoring
-//TODO: scrivere il diario
-//TODO: scrivere il report
-
 // Scene
 let scene, camera, renderer, controls;
 let canvas = document.querySelector("#canvas");
@@ -208,7 +204,6 @@ function Start() {
 
     lightMesh = new THREE.Mesh(new THREE.SphereGeometry(5, 32, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(lightParameters.red, lightParameters.green, lightParameters.blue) }));
     lightMesh.position.set(0, 80, 80);
-
     // scene.add(lightMesh);
 
     lightMesh2 = new THREE.Mesh(new THREE.SphereGeometry(0.1, 32, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(lightParameters2.red, lightParameters2.green, lightParameters2.blue) }));
@@ -223,6 +218,7 @@ function Start() {
     normalMapMetal = loadTexture("textures/materials/metal/normal.jpg");
     normalMapPlastic = loadTexture("textures/materials/plastic/normal.jpg");
 
+    // Materials
     let ash2 = createMaterialTexture("Ash 2", 0.6, 2);
     let ash = createMaterialTexture("Ash", 2, 2);
     let old_ash = createMaterialTexture("Old ash", 3, 2);
@@ -236,7 +232,6 @@ function Start() {
     let leather_white = createMaterialTexture("White leather", 2, 2);
     let leather_red = createMaterialTexture("Red leather", 2, 2);
     let leather_black = createMaterialTexture("Black leather", 2, 4);
-
 
     let silver = createMaterialMetal("Silver", cspec_silver, 0.25, 0.7);
     let nickel = createMaterialMetal("Nickel", cspec_nickel, 0.3, 1.3);
@@ -254,7 +249,7 @@ function Start() {
 
     mats.push(materialPsychedelic);
 
-
+    // json for creating GUI
     materials = {
         "head": {
             "defaultMaterial": ash,
@@ -459,19 +454,18 @@ function Start() {
     // Controls
     // controls = new THREE.TrackballControls(camera, renderer.domElement);
     controls = new THREE.OrbitControls(camera, renderer.domElement);
-    // controls.rotateSpeed = 4;
     controls.minDistance = 0.1;
     controls.maxDistance = 6;
     controls.enableDamping = true;
     // controls.enablePan = false;
     controls.dampingFactor = 0.2;
-    // controls.maxPolarAngle = Math.PI / 2;
-    // controls.minPolarAngle = Math.PI * 0.05;
     controls.enableKeys = true;
 
-    // Now, please, go
+    // Now please, go
     setMaterials();
     createGUI();
+
+    // when gltf is loaded and GUI is generated remove loading page
     pageLoaded();
 }
 
@@ -683,14 +677,6 @@ function save(blob, filename) {
     link.click();
 }
 
-
-// function setMaterial(mesh, material) {
-//     mesh.material = material;
-//     for (let i = 0; i < mesh.children.length; i++) {
-//         mesh.children[i].material = material;
-//     }
-// }
-
 function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
     const pixelRatio = window.devicePixelRatio;
@@ -751,15 +737,6 @@ function Render() {
     renderer.render(scene, camera);
 }
 
-
-// -----------------------------------------------
-// Aux functions
-// -----------------------------------------------
-
-function random(min, max) {
-    return Math.random() * (max - min) + min;
-}
-
 function applyRecursive(group, func) {
     group.children.forEach((child) => {
         if (child) {
@@ -818,7 +795,6 @@ function createGUI() {
 }
 
 function loadCubeMap(path) {
-    // load cube map for background
     var loader = new THREE.CubeTextureLoader();
     loader.setPath('textures/cubemaps/' + path + "/");
 
