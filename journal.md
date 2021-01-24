@@ -4,36 +4,73 @@
 * **Idea 1**: __*DREAMCASTER*__
 \
 L'idea è di poter personalizzare una Stratocaster scegliendo tra dei materiali di default oppure applicare delle texture caricate dall'utente.
+\
 Mi piace.
 
-<img src="images/journal/parti_modificabili_chitarra.png" alt="Sketch delle parti modificabili" width="700">
+    <img src="images/journal/parti_modificabili_chitarra.png" alt="Sketch delle parti modificabili" width="700">
+
+
+* **Da fare:**
+    - [ ] **Costruire** modello
+    - [ ] **Costruire** GUI
+    - [ ] **Scrivere gli shader** per i vari materiali
 
 
 ## 14 gennaio 2021
-<img src="images/journal/idea_generazione_gui.png" alt="Sketch delle parti modificabili" width="700">
+* **Problema**: modelli gratuiti di bassa qualità. Trovato uno, da modificare. Comunque avrei modificato per idea di costruzione interfaccia. Quindi ok.
+* **Idea**: l'interfaccia verrà generata in base alle componenti di primo livello del modello e alle informazioni relative ai materiali disponibili per ogni componente o insieme di componenti (gruppo).
+    <img src="images/journal/idea_generazione_gui.png" alt="Sketch delle parti modificabili" width="700">
 
+* **Fatto**:
+    - [x] **Costruire** modello
+    - [ ] **Costruire** GUI
+    - [ ] **Scrivere gli shader** per i vari materiali
 
-3D Max + Babylon.js -> stratocaster.gltf
-<img src="images/journal/organizzazione_modello.png" alt="Sketch delle parti modificabili" width="800">
+* Raggruppo le componenti modificabili. 
 \
-\
-**Interfaccia ispirazione**
-\
-<img src="images/journal/fender_configurator.png" alt="Sketch delle parti modificabili" width="800">
+Software utilizzati: **3D Max** + **Babylon.js** → *stratocaster.gltf*
+Babylon è un plugin per aggirare l'ottusità di Autodesk.
+    \
+    \
+    <img src="images/journal/organizzazione_modello.png" alt="Sketch delle parti modificabili" width="800">
+ 
+ * **Da fare:**
+    - [ ] **Costruire** GUI
+    - [ ] **Scrivere gli shader** per i vari materiali
 
-\
-**Progetto interfaccia**
-\
-<img src="images/journal/schizzo_gui.png" alt="Sketch delle parti modificabili">
+## 16 gennaio 2021
+* **Interfaccia ispirazione**
+    \
+    https://shop.fender.com/it-IT/mod-shop/stratocaster/0181900706.html
+    <img src="images/journal/fender_configurator.png" alt="Sketch delle parti modificabili" width="800">
 
-Trasformazione in cube map con : https://jaxry.github.io/panorama-to-cubemap/
+* **Progetto interfaccia**
+
+    <img src="images/journal/schizzo_gui.png" alt="Sketch delle parti modificabili">
+
+ * **Da fare:**
+    - [ ] **Costruire** GUI
+    - [ ] **Scrivere gli shader** per i vari materiali
 
 
-<img src="images/journal/skybox.png" alt="Sketch delle parti modificabili">
 
-<img src="images/journal/shader_material.gif" alt="Sketch delle parti modificabili" width="800">
+## 18 gennaio 2021
+* **Problema**: la costruzione dell'interfaccia sta richiedendo più tempo del previsto.
+* **Fatto**:
+    - [ ] **Costruire** GUI
+        - [x] caricato modello
+        - [x] scritto funzioni per recuperare tutti gli oggetti facenti parte di un gruppo (ricorsione): (l'idea di raggruppare gli elementi nel modello sembra funzionare molto bene).
+         Caricato modello e applicato uno shader carino come material shader. Sembra che il modello abbia problemi con le normali in alcuni punti (vedi manopola per il tremolo, colore unico). Vedremo se darà problemi.
+    - [ ] **Scrivere gli shader** per i vari materiali   
+    
+        <img src="images/journal/shader_material.gif" alt="Sketch delle parti modificabili" width="800">
 
+https://github.com/mrdoob/three.js/issues/8901
+
+## 21 gennaio 2021
+* Trasformazione in cube map con : https://jaxry.github.io/panorama-to-cubemap/
 
 <img src="images/journal/gui.gif" alt="Sketch delle parti modificabili" width="800">
 
+## 24 gennaio 2021
 <img src="images/journal/loading_page.gif" alt="Sketch delle parti modificabili" width="800">
