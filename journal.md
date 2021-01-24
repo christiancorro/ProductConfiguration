@@ -79,6 +79,7 @@ Babylon è un plugin per aggirare l'ottusità di Autodesk.
 
 
 * **Risultato**
+\
     <img src="images/journal/gui.gif" alt="Sketch delle parti modificabili" width="800">
 
     L'environment map visibile non mi piace molto. È un po' inelegante e non proprio sensata.
