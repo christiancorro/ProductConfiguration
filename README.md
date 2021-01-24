@@ -57,7 +57,7 @@ La costruzione del configuratore è stata organizzata secondo i seguenti passagg
     Con l'interfaccia operativa è bastato scrivere gli shader per i materiali desiderati e istanziarli secondo le loro caratteristiche pecualiari. Il cambio dei materiali avviene semplicemente riassegnando ricorsivamente a tutte le mesh facenti parte del gruppo selezionato lo `ShaderMaterial`  desiderato.
 
 ### Materiali
-Per implementare i materiali sono stati scritti tre fragment shader e un vertex shader. Ad ogni fragment shader vengono passate attraverso le uniform le stesse informazioni di illuminazione. Sono state utilizzate tre `PointLight` e un'`AmbientLight`. Sono state posizionate per ricreare e potenziare le sorgenti luminose della enviroment map utilizzata.\
+Per implementare i materiali sono stati scritti tre fragment shader e un vertex shader. Ad ogni fragment shader vengono passate attraverso le uniform le stesse informazioni di illuminazione. Sono state utilizzate tre `PointLight` e un'`AmbientLight`. Sono state posizionate per ricreare e potenziare le sorgenti luminose della environment map utilizzata.\
 Gli shader sono stati scritti combinando gli shader visti a lezione. In particolare gli shader delle lezioni *Glossy Reflection Mapping*, *Irradiance Map with diffuse BRDF*, *Normal Mapping* e *Shading with textures*. Inoltre è stata aggiunta una funzione di Tone Mapping, la stessa utilizzata in Uncharted 2. I materiali realizzati sono materiali plastici, metallici e materiali con texture.\
 È disponibile un ulteriore `ShaderMaterial` che, però, non implementa un materiale PBR: è semplicemente il primo shader utilizzato per testare il sistema (vedi l'ultima immagine nei risultati).   
 
