@@ -5,13 +5,12 @@ Christian Corrò - 133110
 
 ## Descrizione
 
-## Risultato
+## Risultati
 <img src="images/report/final.png" alt="Risultato finale">
 
 ## Struttura dei file
 ```
 dreamcaster 
-│
 └───css                     
 │   │    style.css          - foglio di stile generale
 │   │    sidebar.css        - foglio di stile per la sidebar
@@ -42,6 +41,16 @@ dreamcaster
 * [**CC0 Textures**](https://cc0textures.com/) per le texture PBR gratuite
 * [**Riot** ](https://cc0textures.com/)(Radical Image Optimization Tool) per ridurre il peso delle texture
 
+## Prestazioni
+*  PC CPU i5-7200U 2.5 GHz, RAM 8 GB
+    * Chrome 88: **60 fps**
+    * Edge 88: **60 fps**
+    * Firefox 83: **60 fps**
+* iPad Air 3
+    * Chrome: **55 fps**
+    * Safari: **50 fps**
+* Samsung Galaxy s8
+    * Chrome: **60 fps** 
 ## Sviluppi futuri
 Permettere di aggiungere materiali personalizzati anche con l'upload di texture.
 
