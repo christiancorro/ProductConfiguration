@@ -4,9 +4,15 @@
 Christian Corrò - 133110
 
 ## Descrizione
+Il configuratore di prodotto costruito permette di personalizzare nel dettaglio una Dreamcaster, un nuovo modello fantasioso derivato dal modello di una Fender Stratocaster.
 
 ## Risultati
+<img src="images/report/loading_page.png" alt="Pagina di caricamento">
+
 <img src="images/report/final.png" alt="Risultato finale">
+<img src="images/report/leather.png" alt="Risultato finale">
+<img src="images/report/plastic.png" alt="Risultato finale">
+<img src="images/report/psychedelic.png" alt="Risultato finale">
 
 ## Struttura dei file
 ```
@@ -42,7 +48,7 @@ dreamcaster
 * [**Riot** ](https://cc0textures.com/)(Radical Image Optimization Tool) per ridurre il peso delle texture
 
 ## Prestazioni
-*  PC CPU i5-7200U 2.5 GHz, RAM 8 GB
+*  PC CPU i5-7200U 2.5 GHz, RAM 8 GB, Intel HD 620 (integrata)
     * Chrome 88: **60 fps**
     * Edge 88: **60 fps**
     * Firefox 83: **60 fps**
@@ -51,6 +57,7 @@ dreamcaster
     * Safari: **50 fps**
 * Samsung Galaxy s8
     * Chrome: **60 fps** 
+
 ## Sviluppi futuri
 Permettere di aggiungere materiali personalizzati anche con l'upload di texture.
 
