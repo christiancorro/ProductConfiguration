@@ -65,7 +65,7 @@ Gli shader sono stati scritti combinando gli shader visti a lezione. In particol
 * [**3Ds Max**](https://www.autodesk.com/products/3ds-max/) (licenza studente) per modificare il modello,
 * [**CC0 Textures**](https://cc0textures.com/) per le texture PBR gratuite,
 * [**Riot** ](https://cc0textures.com/)(Radical Image Optimization Tool) per ridurre il peso delle texture,
-* [**Panorama to Cubemap** ](https://cc0textures.com/) per convertire un'immagine panormaica equirettangolare in una cubemap.
+* [**Panorama to Cubemap** ](https://cc0textures.com/) per convertire un'immagine panoramica equirettangolare in una cubemap.
 
 ## Prestazioni
 *  PC CPU i5-7200U 2.5 GHz, RAM 8 GB, Intel HD 620 (integrata)
