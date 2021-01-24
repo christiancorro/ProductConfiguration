@@ -55,6 +55,7 @@ Babylon è un plugin per aggirare l'ottusità di Autodesk.
         - [x] scritto funzioni per recuperare tutti gli oggetti facenti parte di un gruppo (ricorsione): (l'idea di raggruppare gli elementi nel modello sembra funzionare molto bene).
         \
         Caricato modello e applicato uno shader carino come material shader. Sembra che il modello abbia problemi con le normali in alcuni punti (vedi manopola per il tremolo, colore unico). Vedremo se darà problemi. 
+    <br/>
     
     <img src="images/journal/shader_material.gif" alt="Sketch delle parti modificabili" width="800">
 
