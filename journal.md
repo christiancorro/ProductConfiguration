@@ -21,8 +21,6 @@ Mi piace.
 
 * **Fatto**:
     - [x] **Costruire** modello
-    - [ ] **Costruire** GUI
-    - [ ] **Scrivere gli shader** per i vari materiali
 
 * Raggruppo le componenti modificabili. 
 \
