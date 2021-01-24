@@ -8,11 +8,10 @@ Il configuratore di prodotto costruito permette di personalizzare nel dettaglio 
 
 ## Risultati
 <img src="images/report/loading_page.png" alt="Pagina di caricamento">
-
 <img src="images/report/final.png" alt="Risultato finale">
-<img src="images/report/leather.png" alt="Risultato finale">
-<img src="images/report/plastic.png" alt="Risultato finale">
-<img src="images/report/psychedelic.png" alt="Risultato finale">
+<img src="images/report/leather.png" alt="Dettaglio pelle">
+<img src="images/report/plastic.png" alt="Dettaglio plastica">
+<img src="images/report/psychedelic.png" alt="Dettaglio shader personalizzato">
 
 ## Struttura dei file
 ```
@@ -42,10 +41,31 @@ dreamcaster
 ```
 
 ## Implementazione
+La costruzione del configuratore è stata organizzata secondo i seguenti passaggi logici:
+
+1. **Riorganizzazione modello 3D**
+    \
+    Il modello `.gltf` è stato modificato raggruppando gli oggetti in gruppi corrispondenti alle componenti modificabili della chitarra.
+2. **Associazione dei materiali**
+    \
+    È stato scritto un oggetto `json` in cui si esplicita l'associazione tra le componenti della chitarra e i materiali disponibili per ogni componente.
+3. **Costruzione automatica dell'interfaccia**
+    \
+    Avendo le informazioni sui componenti della chitarra, estratti direttamente dal modello) e le informazioni sui materiali disponibili per ogni componente (contenuti nell'oggetto json) è stata costruita l'interfaccia, la quale, quindi, è interamente procedurale. Per una più semplice manipolazione del DOM è stata utilizzata la libreria *jQuery*.
+4. **Costruzione dei materiali**
+    \
+    Con l'interfaccia operativa è bastato scrivere gli shader per i materiali desiderati e istanziarli secondo le loro caratteristiche pecualiari. Il cambio dei materiali avviene semplicemente riassegnando ricorsivamente a tutte le mesh facenti parte del gruppo selezionato lo `ShaderMaterial`  desiderato.
+
+### Materiali
+Per implementare i materiali sono stati scritti tre fragment shaders e un vertex shader. Ad ogni fragment shader sono passate attraverso le uniform le stesse informazioni di illuminazione. Sono state utilizzate tre `PointLight` e un'`AmbientLight`. Posizionate per ricreare e potenziare le sorgenti luminose della enviroment map utilizzata.\
+Gli shader sono stati scritti combinando gli shader visti a lezione. In particolare *Glossy Reflection Mapping* *Irradiance Map with diffuse BRDF*, *Normal Mapping:* e *Shading with textures*. Inoltre è stata aggiunta una funzione di Tone Mapping, la stessa utilizzata in Uncharted 2. I materiali realizzati sono materiali plastici, metallici e materiali con texture.\
+È disponibile un ulteriore `ShaderMaterial` che, però, non implementa un materiale PBR: è semplicemente il primo shader utilizzato per testare il sistema (vedi l'ultima immagine nei risultati).   
+
 ### Software e piattaforme utilizzate
-* [**3D Studio Max**](https://www.autodesk.com/products/3ds-max/) (licenza studente) per modificare il modello
-* [**CC0 Textures**](https://cc0textures.com/) per le texture PBR gratuite
-* [**Riot** ](https://cc0textures.com/)(Radical Image Optimization Tool) per ridurre il peso delle texture
+* [**3Ds Max**](https://www.autodesk.com/products/3ds-max/) (licenza studente) per modificare il modello,
+* [**CC0 Textures**](https://cc0textures.com/) per le texture PBR gratuite,
+* [**Riot** ](https://cc0textures.com/)(Radical Image Optimization Tool) per ridurre il peso delle texture,
+* [**Panorama to Cubemap** ](https://cc0textures.com/) per convertire un'immagine panormaica equirettangolare in una cubemap.
 
 ## Prestazioni
 *  PC CPU i5-7200U 2.5 GHz, RAM 8 GB, Intel HD 620 (integrata)
